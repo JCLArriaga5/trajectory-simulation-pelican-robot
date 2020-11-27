@@ -262,13 +262,18 @@ class pelican_robot:
 
         Parameters
         ----------
-        stp : percentage of iterations to display
+        stp : int number of plot steps in range (1 - 100)
         """
         if len(self.us) == 0:
             str_error = 'First run RK4 to obtain each iteration of the solution for the desired position to be able to graph'
             raise ValueError(str_error)
 
-        _stp_ = np.arange(0, len(self.us), stp)
+        if not 1 <= stp <= 100:
+            raise ValueError('The number should be in range (1 - 100)')
+
+        vals = len(self.us) // stp
+
+        _stp_ = np.arange(0, len(self.us), vals)
 
         for qs in _stp_:
             # Coordinates in the plane using manipulator position equations.
