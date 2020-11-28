@@ -24,7 +24,7 @@ Graph of velocities behavior
 ```python
 sim.plot_velocity_bhvr()
 ```
-<p align="center"><img src="images/qs_bhvr_graph.png"></p>
+<p align="center"><img src="images/qps_bhvr_graph.png"></p>
 
 Graph of the trajectory to the desired point
 ```python
@@ -33,7 +33,7 @@ sim.plot_trajectory(50)
 <p align="center"><img src="images/trajectory_graph.png"></p>
 
 ### Trajectory Animation
-<p align="center"><img src="images/pelican_trajectory.gif"></p>
+<p align="center"><img src="images/pelican_trajectory_dp.gif"></p>
 
 # References
  Kelly, R., Davila, V. S., & Perez, J. A. L. (2006). Control of robot manipulators in joint space. Springer Science & Business Media.
