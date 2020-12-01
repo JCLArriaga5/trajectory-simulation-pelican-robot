@@ -50,15 +50,15 @@ class pelican_robot:
         Parameters
         ----------
         ti : Value of the initial t
-        ui : Value of the initial y
-        vi : Value of the initial y'
+        ui : Value of the initial angles [q1, q2]
+        vi : Value of the initial velocities [qp1, qp2]
         tf : time(s) that you want to evaluate in the diff system
         h : Integration step
 
         Returns
         -------
-        ui : Values of qs
-        vi : Values of qps
+        ui : Values of final angles [q1, q2] to desired position
+        vi : Values of final velocities [qp1, qp2] to desired position
         """
         st = np.arange(ti, tf, h)
 
