@@ -17,6 +17,8 @@ def plot_link(p_i, p_f, *args, **kwargs):
     plt.plot([0, 0], [5, 5])
     """
     plt.plot([p_i[0], p_i[0] + p_f[0]], [p_i[1], p_i[1] + p_f[1]], *args, **kwargs)
+    plt.scatter(p_i[0], p_i[1], facecolor=args[0])
+
 
 class pelican_robot:
     """
@@ -87,7 +89,7 @@ class pelican_robot:
             ti += h
             self.ts.append(ti)
 
-        print('The number of iteratios was {}'.format(len(self.us)))
+        # print('The number of iteratios was {}'.format(len(self.us)))
         return ui, vi
 
     def inverse(self, Px, Py):
@@ -298,7 +300,7 @@ class pelican_robot:
         # Draw point in desired position
         plt.scatter(self.dp[0], self.dp[1], facecolor='k')
         # Draw Home Position
-        plot_link([0.0, 0.0], [0.0, -0.52], '--k')
+        plt.plot([0.0, 0.0], [0.0, -0.52], '--k')
         # Draw Final Position
         x_link_1_f =   l1 * np.sin(self.us[len(self.us) - 1][0])
         y_link_1_f = - l1 * np.cos(self.us[len(self.us) - 1][0])
