@@ -7,7 +7,7 @@ def plot_link(p_i, p_f, *args, **kwargs):
     """
     Function to graph a link in R²
 
-    Parameeters
+    Parameters
     -----------
     pi : Initial point of link in R²
     pf : Final point of link in R²
@@ -18,6 +18,28 @@ def plot_link(p_i, p_f, *args, **kwargs):
     """
     plt.plot([p_i[0], p_i[0] + p_f[0]], [p_i[1], p_i[1] + p_f[1]], *args, **kwargs)
     plt.scatter(p_i[0], p_i[1], facecolor=args[0])
+
+def plcn_drct_kinematic(q1, q2):
+    """
+    Function to obtain x-y-cordinates of each link
+
+    Parameters
+    ----------
+    q1 : Direct angle of link_1
+    q2 : Direct angle of link_2
+
+    Returns
+    -------
+    link_1 : x-y-cordinates
+    link_2 : x-y-cordinates
+    fnl_elmnt : x-y-cordinates of final element of robot
+    """
+    l1 = l2 = 0.26
+    link_1 = [l1 * np.sin(q1), - l1 * np.cos(q1)]
+    link_2 = [l2 * np.sin(q1 + q2), - l2 * np.cos(q1 + q2)]
+    fnl_elmnt = [link_1[0] + link_2[0], link_1[1] + link_2[1]]
+
+    return link_1, link_2, fnl_elmnt
 
 
 class pelican_robot:
@@ -278,20 +300,11 @@ class pelican_robot:
         _stp_ = np.arange(0, len(self.us), vals)
 
         for qs in _stp_:
-            # Coordinates in the plane using manipulator position equations.
-            l1 = 0.26
-            l2 = 0.26
-
-            x_link_1 =   l1 * np.sin(self.us[qs][0])
-            y_link_1 = - l1 * np.cos(self.us[qs][0])
-
-            x_link_2 =   l2 * np.sin(self.us[qs][0] + self.us[qs][1])
-            y_link_2 = - l2 * np.cos(self.us[qs][0] + self.us[qs][1])
-
-            # Draw
+            # Draw each number of steps
             plt.title('Pelican Robot: Desired Position trajectory with PD-Controller')
-            plot_link([0.0, 0.0], [x_link_1, y_link_1], '#83EB94')
-            plot_link([x_link_1, y_link_1], [x_link_2, y_link_2], '#83EB94')
+            plot_link([0.0, 0.0], plcn_drct_kinematic(self.us[qs][0], self.us[qs][1])[0], '#83EB94')
+            plot_link(plcn_drct_kinematic(self.us[qs][0], self.us[qs][1])[0],
+                      plcn_drct_kinematic(self.us[qs][0], self.us[qs][1])[1], '#83EB94')
             plt.grid('on')
             # Work space of robot
             plt.xlim(-0.6, 0.6)
@@ -302,13 +315,11 @@ class pelican_robot:
         # Draw Home Position
         plt.plot([0.0, 0.0], [0.0, -0.52], '--k')
         # Draw Final Position
-        x_link_1_f =   l1 * np.sin(self.us[len(self.us) - 1][0])
-        y_link_1_f = - l1 * np.cos(self.us[len(self.us) - 1][0])
-
-        x_link_2_f =   l2 * np.sin(self.us[len(self.us) - 1][0] + self.us[len(self.us) - 1][1])
-        y_link_2_f = - l2 * np.cos(self.us[len(self.us) - 1][0] + self.us[len(self.us) - 1][1])
-        plot_link([0.0, 0.0], [x_link_1_f, y_link_1_f], 'r', label='$L_1$')
-        plot_link([x_link_1_f, y_link_1_f], [x_link_2_f, y_link_2_f], 'b', label='$L_2$')
+        plot_link([0.0, 0.0], plcn_drct_kinematic(self.us[len(self.us) - 1][0], self.us[len(self.us) - 1][1])[0],
+                  'r', label='$L_1$')
+        plot_link(plcn_drct_kinematic(self.us[len(self.us) - 1][0], self.us[len(self.us) - 1][1])[0],
+                  plcn_drct_kinematic(self.us[len(self.us) - 1][0], self.us[len(self.us) - 1][1])[1],
+                  'b', label='$L_2$')
         plt.legend()
         plt.show()
 
