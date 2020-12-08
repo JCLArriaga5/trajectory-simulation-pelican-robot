@@ -289,7 +289,8 @@ class pelican_robot:
         stp : int number of plot steps in range (1 - 100)
         """
         if len(self.us) == 0:
-            raise ValueError('First run RK4 to obtain each iteration of the solution for the desired position to be able to graph')
+            str_error = 'First run RK4 to obtain each iteration of the solution for the desired position to be able to graph'	            raise ValueError('First run RK4 to obtain each iteration of the solution for the desired position to be able to graph')
+            raise ValueError(str_error)
 
         if not 1 <= stp <= 100:
             raise ValueError('The number should be in range (1 - 100)')
