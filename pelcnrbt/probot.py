@@ -111,7 +111,6 @@ class pelican_robot:
             ti += h
             self.ts.append(ti)
 
-        # print('The number of iteratios was {}'.format(len(self.us)))
         return ui, vi
 
     def inverse(self, Px, Py):
