@@ -27,7 +27,7 @@ sim.plot_velocity_bhvr()
 ```
 <p align="center"><img src="images/qps_bhvr_graph.png"></p>
 
-**Graph of the trajectory to the desired point**
+**Graph of desired position trajectory**
 ```python
 sim.plot_trajectory(50)
 ```
