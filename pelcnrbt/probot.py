@@ -250,8 +250,8 @@ class pelican_robot:
             qp2_bhv.append(self.vs[_qp_][1])
 
         plt.title('Graph of velocity Behavior')
-        plt.plot(self.ts, qp1_bhv, "r", label = "$ \\dot{q_1} $")
-        plt.plot(self.ts, qp2_bhv, "b", label = "$ \\dot{q_2} $")
+        plt.plot(self.ts, qp1_bhv, "r--", label = "$ \\dot{q_1} $")
+        plt.plot(self.ts, qp2_bhv, "b--", label = "$ \\dot{q_2} $")
         plt.legend()
         plt.grid()
         plt.xlabel("$ t $", fontsize='large')
