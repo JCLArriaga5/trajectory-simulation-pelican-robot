@@ -289,11 +289,15 @@ class pelican_robot:
         stp : int number of plot steps in range (1 - 100)
         """
         if len(self.us) == 0:
-            str_error = 'First run RK4 to obtain each iteration of the solution for the desired position to be able to graph'
-            raise ValueError(str_error)
+            raise ValueError('First run RK4 to obtain each iteration of the solution for the desired position to be able to graph')
 
         if not 1 <= stp <= 100:
             raise ValueError('The number should be in range (1 - 100)')
+
+        fig, ax = plt.subplots()
+        # Work space of robot
+        ax.set_xlim(-0.6, 0.6)
+        ax.set_ylim(-0.6, 0.6)
 
         vals = len(self.us) // stp
 
@@ -305,23 +309,19 @@ class pelican_robot:
             plot_link([0.0, 0.0], plcn_drct_kinematic(self.us[qs][0], self.us[qs][1])[0], '#83EB94')
             plot_link(plcn_drct_kinematic(self.us[qs][0], self.us[qs][1])[0],
                       plcn_drct_kinematic(self.us[qs][0], self.us[qs][1])[1], '#83EB94')
-            plt.grid('on')
-            # Work space of robot
-            plt.xlim(-0.6, 0.6)
-            plt.ylim(-0.6, 0.6)
+            ax.grid('on')
 
         # Draw point in desired position
-        plt.scatter(self.dp[0], self.dp[1], facecolor='k')
+        ax.scatter(self.dp[0], self.dp[1], marker='X', s=100, facecolor='#65009C')
         # Draw Home Position
-        plt.plot([0.0, 0.0], [0.0, -0.52], '--k')
+        ax.plot([0.0, 0.0], [0.0, -0.52], '--k')
         # Draw Final Position
         plot_link([0.0, 0.0], plcn_drct_kinematic(self.us[len(self.us) - 1][0], self.us[len(self.us) - 1][1])[0],
                   'r', label='$L_1$')
         plot_link(plcn_drct_kinematic(self.us[len(self.us) - 1][0], self.us[len(self.us) - 1][1])[0],
                   plcn_drct_kinematic(self.us[len(self.us) - 1][0], self.us[len(self.us) - 1][1])[1],
                   'b', label='$L_2$')
-        plt.legend()
-        plt.show()
+        ax.legend()
 
     def values(self):
         """
