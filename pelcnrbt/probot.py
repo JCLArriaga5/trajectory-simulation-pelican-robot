@@ -383,3 +383,33 @@ class pelican_robot:
         """
 
         return self.us, self.vs, self.ts
+
+if __name__ == '__main__':
+    # Desired position
+    pd = [0.26, 0.13]
+    # Gains
+    kp = [[30.0, 0.0],
+          [0.0, 30.0]]
+    kv = [[7.0, 0.0],
+          [0.0, 3.0]]
+    # Initial values
+    ui = [0.0, 0.0]
+    vi = [0.0, 0.0]
+    ti = 0.0
+    h = 0.001
+    tf = 1.0
+
+    sim = pelican_robot(pd, kp, kv)
+    qsf, qppsf = sim.RK4(ti, ui, vi, tf, h)
+
+    print('==================================================================')
+    print('Angles for desired position:')
+    print('q1 = {} rad, q2 = {} rad.'.format(qsf[0], qsf[1]))
+
+    print('Close window of error graph...')
+    sim.plot_q_error()
+    plt.show()
+
+    print('Close window of trajectory plot...')
+    sim.plot_trajectory(50)
+    plt.show()
