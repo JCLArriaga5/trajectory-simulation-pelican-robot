@@ -262,8 +262,12 @@ class pelican_robot:
         G12 = m2 * lc2 * g * np.sin(q1 + q2)
         G = [G11, G12]
 
-        # Gravity Compensation
-        tau_ = self.tau + G
+        if len(self.tau) == 0:
+            str_error = 'The tau value of the "controller function" is needed.'
+            raise ValueError(str_error)
+        else:
+            # Gravity Compensation
+            tau_ = self.tau + G
 
         Bi = np.linalg.inv(B)
         Cqp = np.dot(C, v)
