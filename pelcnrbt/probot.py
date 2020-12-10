@@ -11,11 +11,8 @@ def plot_link(p_i, p_f, *args, **kwargs):
     -----------
     pi : Initial point of link in R²
     pf : Final point of link in R²
-
-    Example
-    -------
-    plt.plot([0, 0], [5, 5])
     """
+
     plt.plot([p_i[0], p_i[0] + p_f[0]], [p_i[1], p_i[1] + p_f[1]], *args, **kwargs)
     plt.scatter(p_i[0], p_i[1], facecolor=args[0])
 
@@ -34,6 +31,7 @@ def plcn_drct_kinematic(q1, q2):
     link_2 : x-y-cordinates
     fnl_elmnt : x-y-cordinates of final element of robot
     """
+
     l1 = l2 = 0.26
     link_1 = [l1 * np.sin(q1), - l1 * np.cos(q1)]
     link_2 = [l2 * np.sin(q1 + q2), - l2 * np.cos(q1 + q2)]
@@ -44,8 +42,50 @@ def plcn_drct_kinematic(q1, q2):
 
 class pelican_robot:
     """
-    Class to simulate a desired potion for the pelican robot by means of a PD
-    controller with gravity compensation and graph the behaviors.
+    Simulate a desired potion for the pelican robot by means of a PD controller
+    with gravity compensation and graph the behaviors
+
+    ...
+
+    Attributes
+    ----------
+    dp : list
+        Desired position (Px, Py)
+    kp : list array
+        Position gain in matrix form.
+    kv : list array
+        Velocity gain in matrix form
+
+    Methods
+    -------
+    RK4(ti, ui, vi, tf, h):
+        Runge-Kutta 4th order to solve system ODE's to obtain angles and velocities.
+
+    inverse(Px, Py):
+        Obtain the inverse kinematic of pelican robot.
+
+    controller(qs, qps):
+        - Controller that returns the error of each angle of the desired position.
+        - Generate the controller tau with the set gains to use within the class.
+
+    BCG(v, u):
+        Canonical form of the robot's Lagrange equation of motion, the integrated
+        controller with gravitational compensation. Return the accelerations of
+        each link.
+
+    plot_velocity_bhvr():
+        Function to graph the behavior of the speed of each iteration after RK4
+        is calculated first.
+
+    plot_q_error():
+        Function to graph the behavior of the angle error of each link to desired
+        position, after RK4 is calculated first.
+
+    plot_trajectory(stp):
+        Function to graph trajectory with each angle iteration to desired position.
+
+    values():
+        Function to return values of each iteration in RK4.
     """
 
     def __init__(self, dp, kp, kv):
@@ -58,6 +98,7 @@ class pelican_robot:
         kp : Position gain. e.g. [[30.0, 0.0],[0.0, 30.0]]
         kv : Velocity gain. e.g. [[7.0, 0.0],[0.0, 2.0]]
         """
+
         self.dp = dp
         self.kp = kp
         self.kv = kv
@@ -84,6 +125,7 @@ class pelican_robot:
         ui : Values of final angles [q1, q2] to desired position
         vi : Values of final velocities [qp1, qp2] to desired position
         """
+
         st = np.arange(ti, tf, h)
 
         for _ in st:
@@ -127,6 +169,7 @@ class pelican_robot:
         q1 : Angle in radians of link 1 for the desired position
         q2 : Angle in radians of link 2 for the desired position
         """
+
         l1 = 0.26
         l2 = 0.26
 
@@ -154,6 +197,7 @@ class pelican_robot:
         ------
         qt : error value of desired position
         """
+
         qds = self.inverse(self.dp[0], self.dp[1])
         qt = [qds[0] - qs[0], qds[1] - qs[1]]
 
@@ -163,7 +207,7 @@ class pelican_robot:
 
     def BCG(self, v, u):
         """
-        Dynamic model of pelican robot with Controller
+        Dynamic model of pelican robot with Controller and gravity compensation
 
         Parameters
         ----------
@@ -231,12 +275,14 @@ class pelican_robot:
         """
         Function necessary for computed RK4
         """
+
         return v
 
     def plot_velocity_bhvr(self):
         """
         Function to graph the velocity behavior of each iteration
         """
+
         if len(self.vs) == 0:
             str_error = 'First run RK4 to obtain each iteration of the solution for the desired position to be able to graph'
             raise ValueError(str_error)
@@ -260,6 +306,7 @@ class pelican_robot:
         """
         Function to graph the behavior of the error of each link
         """
+
         if len(self.error) == 0:
             str_error = 'First run RK4 to obtain each iteration of the solution for the desired position to be able to graph'
             raise ValueError(str_error)
@@ -287,6 +334,7 @@ class pelican_robot:
         ----------
         stp : int number of plot steps in range (1 - 100)
         """
+
         if len(self.us) == 0:
             str_error = 'First run RK4 to obtain each iteration of the solution for the desired position to be able to graph'
             raise ValueError(str_error)
@@ -325,6 +373,13 @@ class pelican_robot:
 
     def values(self):
         """
-        Function to return values of each iteration
+        Function to return values of each iteration in RK4
+
+        Returns
+        -------
+        us : Angle values of each iteration to desired position
+        vs : Velocities values of each iteration to desired position
+        ts : Time values for graph
         """
+
         return self.us, self.vs, self.ts
