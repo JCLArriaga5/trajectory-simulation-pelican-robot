@@ -78,8 +78,8 @@ class pelican_robot:
         is calculated first.
 
     plot_q_error():
-        Function to graph the behavior of the angle error of each link to desired
-        position, after RK4 is calculated first.
+        Function to graph the behavior of how the error of each link was reduced
+        until reaching the desired position, after RK4 is calculated first.
 
     plot_trajectory(stp):
         Function to graph trajectory with each angle iteration to desired position.
@@ -108,7 +108,7 @@ class pelican_robot:
         self.error = []
         self.tau = 0
 
-    def RK4(self, ti, ui, vi, tf, h):
+    def RK4(self, ti, ui, vi, tf, h=0.001):
         """
         function to solve by Runge-Kutta 4th Order
 
@@ -132,22 +132,22 @@ class pelican_robot:
             qt = self.controller(ui, vi)
             self.error.append(qt)
 
-            K1 = self.f(vi)
+            K1 = vi
             m1 = self.BCG(vi, ui)
 
-            K2 = self.f(vi + np.dot(m1, h / 2))
+            K2 = vi + np.dot(m1, h / 2)
             m2 = self.BCG(vi + np.dot(m1, h / 2), ui + np.dot(K1, h / 2))
 
-            K3 = self.f(vi + np.dot(m2, h / 2))
+            K3 = vi + np.dot(m2, h / 2)
             m3 = self.BCG(vi + np.dot(m2, h / 2), ui + np.dot(K2, h / 2))
 
-            K4 = self.f(vi + np.dot(m3, h))
+            K4 = vi + np.dot(m3, h)
             m4 = self.BCG(vi + np.dot(m3, h), ui + np.dot(K3, h))
 
-            ui += (h / 6) * (K1 + 2 * K2 + 2 * K3 + K4)
+            ui += (h / 6) * (K1 + 2 * (K2 + K3) + K4)
             self.us.append([ui[0], ui[1]])
 
-            vi += (h / 6) * (m1 + 2 * m2 + 2 * m3 + m4)
+            vi += (h / 6) * (m1 + 2 * (m2 + m3) + m4)
             self.vs.append([vi[0], vi[1]])
 
             ti += h
@@ -275,13 +275,6 @@ class pelican_robot:
 
         return qpp
 
-    def f(self, v):
-        """
-        Function necessary for computed RK4
-        """
-
-        return v
-
     def plot_velocity_bhvr(self):
         """
         Function to graph the velocity behavior of each iteration
@@ -291,16 +284,11 @@ class pelican_robot:
             str_error = 'First run RK4 to obtain each iteration of the solution for the desired position to be able to graph'
             raise ValueError(str_error)
 
-        qp1_bhv = []
-        qp2_bhv = []
-
-        for _qp_ in range(len(self.vs)):
-            qp1_bhv.append(self.vs[_qp_][0])
-            qp2_bhv.append(self.vs[_qp_][1])
-
         plt.title('Graph of velocity Behavior')
-        plt.plot(self.ts, qp1_bhv, "r--", label = "$ \\dot{q_1} $")
-        plt.plot(self.ts, qp2_bhv, "b--", label = "$ \\dot{q_2} $")
+        plt.plot(self.ts, [(self.vs[i][0]) for i in range(len(self.vs))], "r--",
+                 label = "$ \\dot{q_1} $")
+        plt.plot(self.ts, [(self.vs[i][1]) for i in range(len(self.vs))], "b--",
+                 label = "$ \\dot{q_2} $")
         plt.legend()
         plt.grid()
         plt.xlabel("$ t $", fontsize='large')
@@ -308,23 +296,20 @@ class pelican_robot:
 
     def plot_q_error(self):
         """
-        Function to graph the behavior of the error of each link
+        Function to graph the behavior of how the error of each link was reduced
+        until reaching the desired position.
         """
 
         if len(self.error) == 0:
             str_error = 'First run RK4 to obtain each iteration of the solution for the desired position to be able to graph'
             raise ValueError(str_error)
 
-        q1e = []
-        q2e = []
-
-        for e in range(len(self.error)):
-            q1e.append(self.error[e][0])
-            q2e.append(self.error[e][1])
-
         plt.title("Graph of $ \\tilde{q} $")
-        plt.plot(self.ts, q1e, "r--", label = "$ \\tilde{q_1} $")
-        plt.plot(self.ts, q2e, "b--", label = "$ \\tilde{q_2} $")
+        # Plot
+        plt.plot(self.ts, [(self.error[i][0]) for i in range(len(self.error))],
+                 "r--", label = "$ \\tilde{q_1} $")
+        plt.plot(self.ts, [(self.error[i][1]) for i in range(len(self.error))],
+                 "b--", label = "$ \\tilde{q_2} $")
         plt.legend()
         plt.grid()
         plt.xlabel("$ t $", fontsize='large')
@@ -351,9 +336,7 @@ class pelican_robot:
         ax.set_xlim(-0.6, 0.6)
         ax.set_ylim(-0.6, 0.6)
 
-        vals = len(self.us) // stp
-
-        _stp_ = np.arange(0, len(self.us), vals)
+        _stp_ = np.arange(0, len(self.us), len(self.us) // stp)
 
         for qs in _stp_:
             # Draw each number of steps
@@ -412,6 +395,10 @@ if __name__ == '__main__':
 
     print('Close window of error graph...')
     sim.plot_q_error()
+    plt.show()
+
+    print('Close window of velocities behavior...')
+    sim.plot_velocity_bhvr()
     plt.show()
 
     print('Close window of trajectory plot...')
