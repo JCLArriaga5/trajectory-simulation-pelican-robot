@@ -7,6 +7,10 @@ from tkinter import PhotoImage
 import argparse
 from probot import *
 
+def euclidian_d(p1, p2):
+    d = np.sqrt(((p2[0] - p1[0]) ** 2) + ((p2[1] - p1[1]) ** 2))
+    return d
+
 def check_pts_frmt(points):
     if type(points) is not list:
         raise ValueError('Is not a list')
@@ -35,15 +39,22 @@ class get_trj_vals:
               [0.0, 3.0]]
         # Initial conditios
         qi = pelican_robot.inverse('', self.ip[0], self.ip[1])
+        _p = self.ip
         vi = [0.0, 0.0]
         ti = 0.0
-        tf = 1.0
 
         for pnt in range(len(self.pts)):
+            if euclidian_d(_p, self.pts[pnt]) > 0.05:
+                tf = 1.0
+            else:
+                tf = 0.6
+
             anim_vals = pelican_robot(self.pts[pnt], kp, kv)
             q_t, v_t = anim_vals.RK4(ti, qi, vi, tf)
+
             if pnt == 0 or len(self.pts) == 1:
-                stp_init2dp1 = np.arange(0, len(anim_vals.values()[0]), 10)
+                n = len(anim_vals.values()[0]) // 100
+                stp_init2dp1 = np.arange(0, len(anim_vals.values()[0]), n)
                 for i2p in stp_init2dp1:
                     self.qs.append([anim_vals.values()[0][i2p][0], anim_vals.values()[0][i2p][1]])
 
@@ -51,6 +62,7 @@ class get_trj_vals:
                 self.qs.append([q_t[0], q_t[1]])
                 qi = [q_t[0], q_t[1]]
                 vi = [v_t[0], v_t[1]]
+                _p = self.pts[pnt]
 
         return self.qs, self.ip
 
