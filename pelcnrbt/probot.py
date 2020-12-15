@@ -32,7 +32,7 @@ def plcn_drct_kinematic(q1, q2):
     fnl_elmnt : x-y-cordinates of final element of robot
     """
 
-    l1 = l2 = 0.26
+    l1 = l2 = 0.26 # In meters
     link_1 = [l1 * np.sin(q1), - l1 * np.cos(q1)]
     link_2 = [l2 * np.sin(q1 + q2), - l2 * np.cos(q1 + q2)]
     fnl_elmnt = [link_1[0] + link_2[0], link_1[1] + link_2[1]]
@@ -170,8 +170,7 @@ class pelican_robot:
         q2 : Angle in radians of link 2 for the desired position
         """
 
-        l1 = 0.26
-        l2 = 0.26
+        l1 = l2 = 0.26 # In meters
 
         K = ((Px ** 2 + Py ** 2 - l1 ** 2 - l2 ** 2) / (2 * l1 * l2))
         q2 = np.arctan2(np.sqrt(1 - (K ** 2)), K)
@@ -225,15 +224,14 @@ class pelican_robot:
         q2p = v[1]
 
         # Parameters of the robot
-        l1 = 0.26
-        l2 = 0.26
-        lc1 = 0.0983
-        lc2 = 0.0229
-        m1 = 6.5225
-        m2 = 2.0458
-        I1 = 0.1213
-        I2 = 0.01616
-        g = 9.81
+        l1 = l2 = 0.26 # meters
+        lc1 = 0.0983 # meters
+        lc2 = 0.0229 # meters
+        m1 = 6.5225 # Kg
+        m2 = 2.0458 # Kg
+        I1 = 0.1213 # Kg m²
+        I2 = 0.01616 # Kg m²
+        g = 9.81 # m / s²
 
         # Inertial Matrix
         B11 = m1 * lc1 ** 2 + m2 * (l1 ** 2 + lc2 ** 2 + 2 * l1 * lc2 * np.cos(q2)) + I1 + I2
@@ -390,7 +388,7 @@ if __name__ == '__main__':
     qsf, qppsf = sim.RK4(ti, ui, vi, tf, h)
 
     print('==================================================================')
-    print('Angles for desired position:')
+    print('Angles for desired position: [{}, {}]'.format(pd[0], pd[1]))
     print('q1 = {} rad, q2 = {} rad.'.format(qsf[0], qsf[1]))
 
     print('Close window of error graph...')

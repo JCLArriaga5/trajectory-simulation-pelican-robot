@@ -77,9 +77,10 @@ class trjanim(get_trj_vals):
         fig, ax = plt.subplots()
         fig.canvas.set_window_title('Pelican Robot: Trajectory Animation')
         plc_anim_w = plt.get_current_fig_manager()
-        img = PhotoImage(file='images\pelican-robot-icon.png')
+        img = PhotoImage(file='images/pelican-robot-icon.png')
         plc_anim_w.window.tk.call('wm', 'iconphoto', plc_anim_w.window._w, img)
 
+        # Pelican Robot Workspace in meteters
         ax.set_xlim((-0.6, 0.6))
         ax.set_ylim((-0.6, 0.6))
         ax.set_title('Animation Pelican: Trajectory Simulation')
