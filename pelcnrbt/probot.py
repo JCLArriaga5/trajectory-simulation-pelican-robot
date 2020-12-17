@@ -50,7 +50,7 @@ class pelican_robot:
     Attributes
     ----------
     dp : list
-        Desired position (Px, Py)
+        Desired position [Px, Py]
     kp : list array
         Position gain in matrix form.
     kv : list array
