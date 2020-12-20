@@ -103,49 +103,49 @@ class pelican_robot:
         self.kp = kp
         self.kv = kv
         self.ts = []
-        self.us = []
+        self.qs = []
         self.vs = []
         self.error = []
         self.tau = 0
 
-    def RK4(self, ti, ui, vi, tf, h=0.001):
+    def RK4(self, ti, qi, vi, tf, h=0.001):
         """
         function to solve by Runge-Kutta 4th Order
 
         Parameters
         ----------
         ti : Value of the initial t
-        ui : Value of the initial angles [q1, q2]
+        qi : Value of the initial angles [q1, q2]
         vi : Value of the initial velocities [qp1, qp2]
         tf : time(s) that you want to evaluate in the diff system
         h : Integration step
 
         Returns
         -------
-        ui : Values of final angles [q1, q2] to desired position
+        qi : Values of final angles [q1, q2] to desired position
         vi : Values of final velocities [qp1, qp2] to desired position
         """
 
         st = np.arange(ti, tf, h)
 
         for _ in st:
-            qt = self.controller(ui, vi)
+            qt = self.controller(qi, vi)
             self.error.append(qt)
 
             K1 = vi
-            m1 = self.BCG(vi, ui)
+            m1 = self.BCG(qi, vi)
 
             K2 = vi + np.dot(m1, h / 2)
-            m2 = self.BCG(vi + np.dot(m1, h / 2), ui + np.dot(K1, h / 2))
+            m2 = self.BCG(qi + np.dot(K1, h / 2), vi + np.dot(m1, h / 2))
 
             K3 = vi + np.dot(m2, h / 2)
-            m3 = self.BCG(vi + np.dot(m2, h / 2), ui + np.dot(K2, h / 2))
+            m3 = self.BCG(qi + np.dot(K2, h / 2), vi + np.dot(m2, h / 2))
 
             K4 = vi + np.dot(m3, h)
-            m4 = self.BCG(vi + np.dot(m3, h), ui + np.dot(K3, h))
+            m4 = self.BCG(qi + np.dot(K3, h), vi + np.dot(m3, h))
 
-            ui += (h / 6) * (K1 + 2 * (K2 + K3) + K4)
-            self.us.append([ui[0], ui[1]])
+            qi += (h / 6) * (K1 + 2 * (K2 + K3) + K4)
+            self.qs.append([qi[0], qi[1]])
 
             vi += (h / 6) * (m1 + 2 * (m2 + m3) + m4)
             self.vs.append([vi[0], vi[1]])
@@ -153,7 +153,7 @@ class pelican_robot:
             ti += h
             self.ts.append(ti)
 
-        return ui, vi
+        return qi, vi
 
     def inverse(self, Px, Py):
         """
@@ -181,7 +181,7 @@ class pelican_robot:
 
         return q1, q2
 
-    def controller(self, qs, qps):
+    def controller(self, qst, qpst):
         """
         Proportional Control plus Velocity Feedback and PD Control
 
@@ -189,8 +189,8 @@ class pelican_robot:
 
         Parameters
         ----------
-        qs : Values q(t) time dependent
-        qps : Values of $\dot{q}(t)$ time dependent
+        qst : Values of angles position q(t), time dependent
+        qpst : Values of each link velocities, time dependent
 
         Return
         ------
@@ -198,13 +198,13 @@ class pelican_robot:
         """
 
         qds = self.inverse(self.dp[0], self.dp[1])
-        qt = [qds[0] - qs[0], qds[1] - qs[1]]
+        qt = [qds[0] - qst[0], qds[1] - qst[1]]
 
-        self.tau = np.dot(self.kp, qt) - np.dot(self.kv, qps)
+        self.tau = np.dot(self.kp, qt) - np.dot(self.kv, qpst)
 
         return qt
 
-    def BCG(self, v, u):
+    def BCG(self, q, v):
         """
         Dynamic model of pelican robot with Controller and gravity compensation
 
@@ -217,11 +217,6 @@ class pelican_robot:
         ------
         qpp : Acelerations of each link [qpp1, qpp2]
         """
-        # Variables of positions and speeds
-        q1 = u[0]
-        q2 = u[1]
-        q1p = v[0]
-        q2p = v[1]
 
         # Parameters of the robot
         l1 = l2 = 0.26 # meters
@@ -234,9 +229,9 @@ class pelican_robot:
         g = 9.81 # m / s²
 
         # Inertial Matrix
-        B11 = m1 * lc1 ** 2 + m2 * (l1 ** 2 + lc2 ** 2 + 2 * l1 * lc2 * np.cos(q2)) + I1 + I2
-        B12 = m2 * (lc2 ** 2 + l1 * lc2 * np.cos(q2)) + I2
-        B21 = m2 * (lc2 ** 2 + l1 * lc2 * np.cos(q2)) + I2
+        B11 = m1 * lc1 ** 2 + m2 * (l1 ** 2 + lc2 ** 2 + 2 * l1 * lc2 * np.cos(q[1])) + I1 + I2
+        B12 = m2 * (lc2 ** 2 + l1 * lc2 * np.cos(q[1])) + I2
+        B21 = m2 * (lc2 ** 2 + l1 * lc2 * np.cos(q[1])) + I2
         B22 = m2 * lc2 ** 2 + I2
 
         B = [
@@ -245,9 +240,9 @@ class pelican_robot:
         ]
 
         # Vector of centrifugal and Coriolis forces
-        C11 = - ((m2 * l1 * lc2 * np.sin(q2)) * q2p)
-        C12 = - ((m2 * l1 * lc2 * np.sin(q2)) * (q1p + q2p))
-        C21 =   ((m2 * l1 * lc2 * np.sin(q2)) * q1p)
+        C11 = - ((m2 * l1 * lc2 * np.sin(q[1])) * v[1])
+        C12 = - ((m2 * l1 * lc2 * np.sin(q[1])) * (v[0] + v[1]))
+        C21 =   ((m2 * l1 * lc2 * np.sin(q[1])) * v[1])
         C22 = 0.0
 
         C = [
@@ -256,8 +251,8 @@ class pelican_robot:
         ]
 
         # Vector of gravitational forces and torques
-        G11 = (m1 * lc1 + m2 * l1) * g * np.sin(q1) + m2 * lc2 * g * np.sin(q1 + q2)
-        G12 = m2 * lc2 * g * np.sin(q1 + q2)
+        G11 = (m1 * lc1 + m2 * l1) * g * np.sin(q[0]) + m2 * lc2 * g * np.sin(q[0] + q[1])
+        G12 = m2 * lc2 * g * np.sin(q[0] + q[1])
         G = [G11, G12]
 
         if len(self.tau) == 0:
@@ -265,11 +260,11 @@ class pelican_robot:
             raise ValueError(str_error)
         else:
             # Gravity Compensation
-            tau_ = self.tau + G
+            __tau = self.tau + G
 
         Bi = np.linalg.inv(B)
         Cqp = np.dot(C, v)
-        qpp = np.matmul(Bi, (tau_ - Cqp - G))
+        qpp = np.matmul(Bi, (__tau - Cqp - G))
 
         return qpp
 
@@ -322,7 +317,7 @@ class pelican_robot:
         stp : int number of plot steps in range (1 - 100)
         """
 
-        if len(self.us) == 0:
+        if len(self.qs) == 0:
             str_error = 'First run RK4 to obtain each iteration of the solution for the desired position to be able to graph'
             raise ValueError(str_error)
 
@@ -334,14 +329,14 @@ class pelican_robot:
         ax.set_xlim(-0.6, 0.6)
         ax.set_ylim(-0.6, 0.6)
 
-        _stp_ = np.arange(0, len(self.us), len(self.us) // stp)
+        _stp_ = np.arange(0, len(self.qs), len(self.qs) // stp)
 
-        for qs in _stp_:
+        for n in _stp_:
             # Draw each number of steps
             plt.title('Pelican Robot: Desired Position trajectory with PD-Controller')
-            plot_link([0.0, 0.0], plcn_drct_kinematic(self.us[qs][0], self.us[qs][1])[0], '#83EB94')
-            plot_link(plcn_drct_kinematic(self.us[qs][0], self.us[qs][1])[0],
-                      plcn_drct_kinematic(self.us[qs][0], self.us[qs][1])[1], '#83EB94')
+            plot_link([0.0, 0.0], plcn_drct_kinematic(self.qs[n][0], self.qs[n][1])[0], '#83EB94')
+            plot_link(plcn_drct_kinematic(self.qs[n][0], self.qs[n][1])[0],
+                      plcn_drct_kinematic(self.qs[n][0], self.qs[n][1])[1], '#83EB94')
             ax.grid('on')
 
         # Draw point in desired position
@@ -349,10 +344,10 @@ class pelican_robot:
         # Draw Home Position
         ax.plot([0.0, 0.0], [0.0, -0.52], '--k')
         # Draw Final Position
-        plot_link([0.0, 0.0], plcn_drct_kinematic(self.us[len(self.us) - 1][0], self.us[len(self.us) - 1][1])[0],
+        plot_link([0.0, 0.0], plcn_drct_kinematic(self.qs[len(self.qs) - 1][0], self.qs[len(self.qs) - 1][1])[0],
                   'r', label='$L_1$')
-        plot_link(plcn_drct_kinematic(self.us[len(self.us) - 1][0], self.us[len(self.us) - 1][1])[0],
-                  plcn_drct_kinematic(self.us[len(self.us) - 1][0], self.us[len(self.us) - 1][1])[1],
+        plot_link(plcn_drct_kinematic(self.qs[len(self.qs) - 1][0], self.qs[len(self.qs) - 1][1])[0],
+                  plcn_drct_kinematic(self.qs[len(self.qs) - 1][0], self.qs[len(self.qs) - 1][1])[1],
                   'b', label='$L_2$')
         ax.legend()
 
@@ -367,7 +362,7 @@ class pelican_robot:
         ts : Time values for graph
         """
 
-        return self.us, self.vs, self.ts
+        return self.qs, self.vs, self.ts
 
 if __name__ == '__main__':
     # Desired position
@@ -378,14 +373,13 @@ if __name__ == '__main__':
     kv = [[7.0, 0.0],
           [0.0, 3.0]]
     # Initial values
-    ui = [0.0, 0.0]
+    qi = [0.0, 0.0]
     vi = [0.0, 0.0]
     ti = 0.0
-    h = 0.001
     tf = 1.0
 
     sim = pelican_robot(pd, kp, kv)
-    qsf, qppsf = sim.RK4(ti, ui, vi, tf, h)
+    qsf, qppsf = sim.RK4(ti, qi, vi, tf)
 
     print('==================================================================')
     print('Angles for desired position: [{}, {}]'.format(pd[0], pd[1]))
