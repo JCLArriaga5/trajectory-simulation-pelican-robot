@@ -124,9 +124,11 @@ class get_trj_vals:
             if euclidian_d(_p, self.pts[pnt]) > 0.05:
                 # If points distance is longer, we need more time
                 tf = 1.0
+                # print('Flag 1')
             else:
                 # If points distance is lower, we need less time
                 tf = 0.6
+                # print('Flag 2')
 
             anim_vals = pelican_robot(self.pts[pnt], kp, kv)
             q_t, v_t = anim_vals.RK4(ti, qi, vi, tf)
@@ -206,6 +208,8 @@ class trjanim(get_trj_vals):
         link_1, = ax.plot([], [], 'r', lw=2)
         link_2, = ax.plot([], [], 'b', lw=2)
 
+        print('Wait while the animation is generated')
+
         qs, ip = self.get_q_vals()
 
         def init():
@@ -237,7 +241,6 @@ class trjanim(get_trj_vals):
 
             return link_1, link_2
 
-        print('Wait while the animation is generated with a total of {} frames...'.format(len(qs)))
         anim = animation.FuncAnimation(fig, frms, init_func=init, frames=len(qs),
                                     interval=50, blit=True)
 
