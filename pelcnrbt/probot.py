@@ -2,6 +2,8 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
+from tkinter import PhotoImage
+from matplotlib.animation import FuncAnimation
 
 def plot_link(p_i, p_f, *args, **kwargs):
     """
@@ -16,7 +18,7 @@ def plot_link(p_i, p_f, *args, **kwargs):
     plt.plot([p_i[0], p_i[0] + p_f[0]], [p_i[1], p_i[1] + p_f[1]], *args, **kwargs)
     plt.scatter(p_i[0], p_i[1], facecolor=args[0])
 
-def plcn_drct_kinematic(q1, q2):
+def direct_k(q1, q2):
     """
     Function to obtain x-y-cordinates of each link
 
@@ -39,6 +41,69 @@ def plcn_drct_kinematic(q1, q2):
 
     return link_1, link_2, fnl_elmnt
 
+class realtime:
+    def __init__(self):
+        self.fig, (self.robot, self.qt) = plt.subplots(2, 1)
+        self.fig.canvas.set_window_title('Pelican Robot: Simulation')
+        # Change icon window
+        plc_anim_w = plt.get_current_fig_manager()
+        img = PhotoImage(file='images/pelican-robot-icon.png')
+        plc_anim_w.window.tk.call('wm', 'iconphoto', plc_anim_w.window._w, img)
+
+        self.robot.set_xlim((-0.6, 0.6))
+        self.robot.set_ylim((-0.6, 0.6))
+        self.robot.set_aspect('equal', adjustable='box')
+        self.robot.grid('on')
+
+        self.qt.set_title("Graph of how the error ($ \\tilde{q} $) was reduced.")
+        self.qt.set_xlabel("$ t(s) $", fontsize='large')
+        self.qt.set_ylabel("$ \\tilde{q} $", rotation='horizontal', fontsize='large')
+        self.qt.grid('on', linestyle='--')
+
+    def show(self, ts, qs, qt, dp):
+        self.qt.set_xlim((min(ts), max(ts)))
+        qtmin = min(min([qt[i][0] for i in range(len(qt))]), min([qt[i][1] for i in range(len(qt))]))
+        qtmax = max(max([qt[i][0] for i in range(len(qt))]), max([qt[i][1] for i in range(len(qt))]))
+        self.qt.set_ylim((qtmin, qtmax))
+        str_controller = r'$  \tau = K_{p} \tilde{q} - K_{v} \dot{q} + g(q) $'
+        str_qt = r'$ \tilde{q} := q_d - q(t) $'
+        self.qt.text((max(ts) / 2), (qtmax), 'Controller equation',
+                     horizontalalignment='center', verticalalignment='top')
+        self.qt.text((max(ts) / 2), (qtmax - 200 * 0.001), str_controller,
+                     horizontalalignment='center', verticalalignment='top')
+        self.qt.text((max(ts) / 2), (qtmax - 500 * 0.001), str_qt, horizontalalignment='center',
+                     verticalalignment='top')
+
+        self.robot.set_title(r"Pelican Robot: Trajectory to [{}, {}]".format(dp[0], dp[1]))
+        self.robot.scatter(dp[0], dp[1], facecolor='k')
+        link_1, = self.robot.plot([], [], 'r', lw=2)
+        link_2, = self.robot.plot([], [], 'b', lw=2)
+
+        q1_error, = self.qt.plot([], [], 'r', lw=2, label="$ \\tilde{q_{1}} $")
+        q2_error, = self.qt.plot([], [], 'b', lw=2, label="$ \\tilde{q_{2}} $")
+        self.qt.legend(loc='upper right')
+        q1e = [qt[n][0] for n in range(len(qt))]
+        q2e = [qt[n][1] for n in range(len(qt))]
+
+        def animate(i):
+            link_1.set_data([0.0, direct_k(qs[i][0], qs[i][1])[0][0]],
+                            [0.0, direct_k(qs[i][0], qs[i][1])[0][1]])
+
+            link_2.set_data([direct_k(qs[i][0], qs[i][1])[0][0],
+                             direct_k(qs[i][0], qs[i][1])[2][0]],
+                            [direct_k(qs[i][0], qs[i][1])[0][1],
+                             direct_k(qs[i][0], qs[i][1])[2][1]])
+
+            q1_error.set_data(ts[:i - len(ts)], q1e[:i - len(q1e)])
+            q2_error.set_data(ts[:i - len(ts)], q2e[:i - len(q2e)])
+
+            return link_1, link_2, q1_error, q2_error,
+
+        ani = FuncAnimation(self.fig, animate, interval=5, blit=True, frames=len(qs),
+                            repeat=False)
+
+        self.fig.tight_layout()
+        plt.show()
 
 class pelican_robot:
     """
@@ -108,7 +173,7 @@ class pelican_robot:
         self.error = []
         self.tau = 0
 
-    def RK4(self, ti, qi, vi, tf, h=0.001):
+    def RK4(self, ti, qi, vi, tf, h=0.001, display=False):
         """
         function to solve by Runge-Kutta 4th Order
 
@@ -119,6 +184,9 @@ class pelican_robot:
         vi : Value of the initial velocities [qp1, qp2]
         tf : time(s) that you want to evaluate in the diff system
         h : Integration step
+        display : bool
+            If it is true, it shows in real time how the angles of each link
+            changed and the error reduction to the desired point.
 
         Returns
         -------
@@ -152,6 +220,9 @@ class pelican_robot:
 
             ti += h
             self.ts.append(ti)
+
+        if display == True:
+            realtime().show(self.ts, self.qs, self.error, self.dp)
 
         return qi, vi
 
@@ -334,9 +405,9 @@ class pelican_robot:
         for n in _stp_:
             # Draw each number of steps
             plt.title('Pelican Robot: Desired Position trajectory with PD-Controller')
-            plot_link([0.0, 0.0], plcn_drct_kinematic(self.qs[n][0], self.qs[n][1])[0], '#83EB94')
-            plot_link(plcn_drct_kinematic(self.qs[n][0], self.qs[n][1])[0],
-                      plcn_drct_kinematic(self.qs[n][0], self.qs[n][1])[1], '#83EB94')
+            plot_link([0.0, 0.0], direct_k(self.qs[n][0], self.qs[n][1])[0], '#83EB94')
+            plot_link(direct_k(self.qs[n][0], self.qs[n][1])[0],
+                      direct_k(self.qs[n][0], self.qs[n][1])[1], '#83EB94')
             ax.grid('on')
 
         # Draw point in desired position
@@ -344,10 +415,10 @@ class pelican_robot:
         # Draw Home Position
         ax.plot([0.0, 0.0], [0.0, -0.52], '--k')
         # Draw Final Position
-        plot_link([0.0, 0.0], plcn_drct_kinematic(self.qs[len(self.qs) - 1][0], self.qs[len(self.qs) - 1][1])[0],
+        plot_link([0.0, 0.0], direct_k(self.qs[len(self.qs) - 1][0], self.qs[len(self.qs) - 1][1])[0],
                   'r', label='$L_1$')
-        plot_link(plcn_drct_kinematic(self.qs[len(self.qs) - 1][0], self.qs[len(self.qs) - 1][1])[0],
-                  plcn_drct_kinematic(self.qs[len(self.qs) - 1][0], self.qs[len(self.qs) - 1][1])[1],
+        plot_link(direct_k(self.qs[len(self.qs) - 1][0], self.qs[len(self.qs) - 1][1])[0],
+                  direct_k(self.qs[len(self.qs) - 1][0], self.qs[len(self.qs) - 1][1])[1],
                   'b', label='$L_2$')
         ax.legend()
 
@@ -387,10 +458,6 @@ if __name__ == '__main__':
 
     print('Close window of error graph...')
     sim.plot_q_error()
-    plt.show()
-
-    print('Close window of velocities behavior...')
-    sim.plot_velocity_bhvr()
     plt.show()
 
     print('Close window of trajectory plot...')
