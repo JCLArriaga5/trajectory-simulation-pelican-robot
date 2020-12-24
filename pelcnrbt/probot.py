@@ -450,7 +450,7 @@ if __name__ == '__main__':
     tf = 1.0
 
     sim = pelican_robot(pd, kp, kv)
-    qsf, qppsf = sim.RK4(ti, qi, vi, tf)
+    qsf, qpsf = sim.RK4(ti, qi, vi, tf)
 
     print('==================================================================')
     print('Angles for desired position: [{}, {}]'.format(pd[0], pd[1]))
