@@ -1,4 +1,12 @@
 # -*- coding: utf-8 -*-
+#
+# Trajectory simulation of the Pelican Prototype Robot of the CICESE Research
+# Center, Mexico. The position control used was PD control with gravity
+# compensation and the 4th order Runge-Kutta method.
+# @autor: José Carlos López Arriaga
+# References
+#   Kelly, R., Davila, V. S., & Perez, J. A. L. (2006). Control of robot
+#   manipulators in joint space. Springer Science & Business Media.
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -20,7 +28,8 @@ def plot_link(p_i, p_f, *args, **kwargs):
 
 def direct_k(q1, q2):
     """
-    Function to obtain x-y-cordinates of each link
+    Direct Kinematic of pelican robot:
+        Obtain x-y-cordinates of each link with direct angles
 
     Parameters
     ----------
@@ -41,30 +50,97 @@ def direct_k(q1, q2):
 
     return link_1, link_2, fnl_elmnt
 
+def inverse_k(Px, Py):
+    """
+    Inverse kinematic of pelican robot:
+        Obtain angles for each link to desired position
+
+    Parameters
+    ----------
+    Px : Value of x-position desired
+    Py : Value of y-position desired
+
+    Returns
+    -------
+    q1 : Angle in radians of link 1 for the desired position
+    q2 : Angle in radians of link 2 for the desired position
+    """
+
+    l1 = l2 = 0.26 # In meters
+
+    K = ((Px ** 2 + Py ** 2 - l1 ** 2 - l2 ** 2) / (2 * l1 * l2))
+    q2 = np.arctan2(np.sqrt(1 - (K ** 2)), K)
+
+    __tmp = np.arctan2((l2 * np.sin(q2)), (l1 + l2 * np.cos(q2)))
+    q1 = np.arctan2(Px, - Py) - __tmp
+
+    return q1, q2
+
 class realtime:
+    """
+    Generate animation of the trajectory and how it was reducing the qt error
+    until reaching the desired position.
+
+    ...
+
+    Methods
+    -------
+    def show(ts, qs, qt, dp):
+        Once each of the necessary values for the animation are obtained, it is
+        shown in the established time interval as it was changing.
+    """
+
     def __init__(self):
+        """
+        Constructor
+
+        In the constructor the shape of the figure is initialized and designed
+        for animation.
+        """
+
+        # Number of subplots to animate
         self.fig, (self.robot, self.qt) = plt.subplots(2, 1)
+        # Change window title
         self.fig.canvas.set_window_title('Pelican Robot: Simulation')
         # Change icon window
         plc_anim_w = plt.get_current_fig_manager()
         img = PhotoImage(file='images/pelican-robot-icon.png')
         plc_anim_w.window.tk.call('wm', 'iconphoto', plc_anim_w.window._w, img)
 
+        # Limits and appearance of the pelican robot animation
         self.robot.set_xlim((-0.6, 0.6))
         self.robot.set_ylim((-0.6, 0.6))
         self.robot.set_aspect('equal', adjustable='box')
         self.robot.grid('on')
 
+        # Some elements for the animation of the error qt
         self.qt.set_title("Graph of how the error ($ \\tilde{q} $) was reduced.")
         self.qt.set_xlabel("$ t(s) $", fontsize='large')
         self.qt.set_ylabel("$ \\tilde{q} $", rotation='horizontal', fontsize='large')
         self.qt.grid('on', linestyle='--')
 
     def show(self, ts, qs, qt, dp):
+        """
+        Function to generate the animation using the parameters necessary for
+        the animation.
+
+        Parameters
+        ----------
+        ts : List with the integration step intervals for the set time range.
+        qs : List with the values of the angles of each link of each iteration
+             until reaching the desired position.
+        qt : List with the values of how the error qt was changing in each
+             iteration until reaching the desired position.
+        dp : Desired position in the form [Px, Py] to draw the point the robot
+             should reach in the animation.
+        """
+
+        # Get limits of qt plot
         self.qt.set_xlim((min(ts), max(ts)))
         qtmin = min(min([qt[i][0] for i in range(len(qt))]), min([qt[i][1] for i in range(len(qt))]))
         qtmax = max(max([qt[i][0] for i in range(len(qt))]), max([qt[i][1] for i in range(len(qt))]))
         self.qt.set_ylim((qtmin, qtmax))
+        # Text for formulas in qt plot
         str_controller = r'$  \tau = K_{p} \tilde{q} - K_{v} \dot{q} + g(q) $'
         str_qt = r'$ \tilde{q} := q_d - q(t) $'
         self.qt.text((max(ts) / 2), (qtmax), 'Controller equation',
@@ -73,12 +149,13 @@ class realtime:
                      horizontalalignment='center', verticalalignment='top')
         self.qt.text((max(ts) / 2), (qtmax - 500 * 0.001), str_qt, horizontalalignment='center',
                      verticalalignment='top')
-
+        # Some elements for the animation of the pelican robot
         self.robot.set_title(r"Pelican Robot: Trajectory to [{}, {}]".format(dp[0], dp[1]))
         self.robot.scatter(dp[0], dp[1], facecolor='k')
+        # For pelican robot animation
         link_1, = self.robot.plot([], [], 'r', lw=2)
         link_2, = self.robot.plot([], [], 'b', lw=2)
-
+        # For qt animation
         q1_error, = self.qt.plot([], [], 'r', lw=2, label="$ \\tilde{q_{1}} $")
         q2_error, = self.qt.plot([], [], 'b', lw=2, label="$ \\tilde{q_{2}} $")
         self.qt.legend(loc='upper right')
@@ -86,6 +163,10 @@ class realtime:
         q2e = [qt[n][1] for n in range(len(qt))]
 
         def animate(i):
+            """
+            Generate animation
+            """
+
             link_1.set_data([0.0, direct_k(qs[i][0], qs[i][1])[0][0]],
                             [0.0, direct_k(qs[i][0], qs[i][1])[0][1]])
 
@@ -125,9 +206,6 @@ class pelican_robot:
     -------
     RK4(ti, ui, vi, tf, h):
         Runge-Kutta 4th order to solve system ODE's to obtain angles and velocities.
-
-    inverse(Px, Py):
-        Obtain the inverse kinematic of pelican robot.
 
     controller(qs, qps):
         - Controller that returns the error of each angle of the desired position.
@@ -226,32 +304,6 @@ class pelican_robot:
 
         return qi, vi
 
-    def inverse(self, Px, Py):
-        """
-        Function to obtain the inverse kinematic of pelican robot
-
-        Parameters
-        ----------
-        Px : Value of x-position desired
-        Py : Value of y-position desired
-
-        Returns
-        -------
-        q1 : Angle in radians of link 1 for the desired position
-        q2 : Angle in radians of link 2 for the desired position
-        """
-
-        l1 = l2 = 0.26 # In meters
-
-        K = ((Px ** 2 + Py ** 2 - l1 ** 2 - l2 ** 2) / (2 * l1 * l2))
-        q2 = np.arctan2(np.sqrt(1 - (K ** 2)), K)
-
-        a = np.arctan2(Px, -Py)
-        b = np.arctan2((l2 * np.sin(q2)), (l1 + l2 * np.cos(q2)))
-        q1 = a - b
-
-        return q1, q2
-
     def controller(self, qst, qpst):
         """
         Proportional Control plus Velocity Feedback and PD Control
@@ -268,7 +320,7 @@ class pelican_robot:
         qt : error value of desired position
         """
 
-        qds = self.inverse(self.dp[0], self.dp[1])
+        qds = inverse_k(self.dp[0], self.dp[1])
         qt = [qds[0] - qst[0], qds[1] - qst[1]]
 
         self.tau = np.dot(self.kp, qt) - np.dot(self.kv, qpst)
@@ -281,8 +333,8 @@ class pelican_robot:
 
         Parameters
         ----------
+        q : Angles of each link  [q1, q2]
         v : Velocitys of each link [qp1, qp2]
-        u : Angles of each link  [q1, q2]
 
         Return
         ------
@@ -437,23 +489,23 @@ class pelican_robot:
 
 if __name__ == '__main__':
     # Desired position
-    pd = [0.26, 0.13]
+    dp = [0.26, 0.13]
     # Gains
     kp = [[30.0, 0.0],
           [0.0, 30.0]]
     kv = [[7.0, 0.0],
           [0.0, 3.0]]
-    # Initial values
+    # Initial values of angles and velocities
     qi = [0.0, 0.0]
     vi = [0.0, 0.0]
     ti = 0.0
     tf = 1.0
 
-    sim = pelican_robot(pd, kp, kv)
+    sim = pelican_robot(dp, kp, kv)
     qsf, qpsf = sim.RK4(ti, qi, vi, tf)
 
     print('==================================================================')
-    print('Angles for desired position: [{}, {}]'.format(pd[0], pd[1]))
+    print('Angles for desired position: [{}, {}]'.format(dp[0], dp[1]))
     print('q1 = {} rad, q2 = {} rad.'.format(qsf[0], qsf[1]))
 
     print('Close window of error graph...')
