@@ -114,7 +114,7 @@ class get_trj_vals:
         kv = [[7.0, 0.0],
               [0.0, 4.0]]
         # Initial conditios
-        qi = pelican_robot.inverse('', self.ip[0], self.ip[1])
+        qi = inverse_k(self.ip[0], self.ip[1])
         _p = self.ip
         vi = [0.0, 0.0]
         ti = 0.0
@@ -217,12 +217,12 @@ class trjanim(get_trj_vals):
             Get initial frame
             """
 
-            qi = pelican_robot.inverse('', ip[0], ip[1])
-            link_1.set_data([0.0, plcn_drct_kinematic(qi[0], qi[1])[0][0]],
-                            [0.0, plcn_drct_kinematic(qi[0], qi[1])[0][1]])
+            qi = inverse_k(ip[0], ip[1])
+            link_1.set_data([0.0, direct_k(qi[0], qi[1])[0][0]],
+                            [0.0, direct_k(qi[0], qi[1])[0][1]])
 
-            link_2.set_data([plcn_drct_kinematic(qi[0], qi[1])[0][0], plcn_drct_kinematic(qi[0], qi[1])[1][0]],
-                            [plcn_drct_kinematic(qi[0], qi[1])[0][1], plcn_drct_kinematic(qi[0], qi[1])[1][1]])
+            link_2.set_data([direct_k(qi[0], qi[1])[0][0], direct_k(qi[0], qi[1])[1][0]],
+                            [direct_k(qi[0], qi[1])[0][1], direct_k(qi[0], qi[1])[1][1]])
 
             return link_1, link_2
 
@@ -231,13 +231,13 @@ class trjanim(get_trj_vals):
             Get frames of all animation
             """
 
-            link_1.set_data([0.0, plcn_drct_kinematic(qs[i][0], qs[i][1])[0][0]],
-                            [0.0, plcn_drct_kinematic(qs[i][0], qs[i][1])[0][1]])
+            link_1.set_data([0.0, direct_k(qs[i][0], qs[i][1])[0][0]],
+                            [0.0, direct_k(qs[i][0], qs[i][1])[0][1]])
 
-            link_2.set_data([plcn_drct_kinematic(qs[i][0], qs[i][1])[0][0],
-                             plcn_drct_kinematic(qs[i][0], qs[i][1])[2][0]],
-                            [plcn_drct_kinematic(qs[i][0], qs[i][1])[0][1],
-                             plcn_drct_kinematic(qs[i][0], qs[i][1])[2][1]])
+            link_2.set_data([direct_k(qs[i][0], qs[i][1])[0][0],
+                             direct_k(qs[i][0], qs[i][1])[2][0]],
+                            [direct_k(qs[i][0], qs[i][1])[0][1],
+                             direct_k(qs[i][0], qs[i][1])[2][1]])
 
             return link_1, link_2
 
