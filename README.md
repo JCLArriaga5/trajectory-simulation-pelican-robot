@@ -11,7 +11,7 @@ Trajectory simulation of the Pelican Prototype Robot of the [CICESE Research Cen
 $ git clone https://github.com/JCLArriaga5/trajectory-simulation-pelican-robot.git
 ```
 ## Simulation
-The simulation was carried out with a Colab notebook using the functions created in [pelcnrbt](../master/pelcnrbt/), the simulation notebook can be seen [here](../master/simulation_nb/pelican_trajectory_simulation.ipynb).
+The simulation was carried out with a Colab notebook using the functions created in [probot](../master/pelcnrbt/probot.py), the simulation notebook can be seen [here](../master/simulation_nb/pelican_trajectory_simulation.ipynb).
 
 The simulation must be in order:
 ```python
@@ -22,7 +22,7 @@ kp = [[30.0, 0.0],
       [0.0, 30.0]]
 kv = [[7.0, 0.0],
       [0.0, 3.0]]
-# Initial values
+# Initial values of angles and velocities
 qi = [0.0, 0.0]
 vi = [0.0, 0.0]
 ti = 0.0
@@ -31,9 +31,9 @@ tf = 1.0
 sim = pelican_robot(pd, kp, kv)
 qsf, qpsf = sim.RK4(ti, qi, vi, tf)
 ```
-the `qi` angles were set to zero to start from home position in this case, if you want it to start from another position you can use the `inverse` function which is the robot inverse kinematics which returns the values of `q1` and `q2` for the position you want:
+the `qi` angles were set to zero to start from home position in this case, if you want it to start from another position you can use the `inverse_k` function which is the robot inverse kinematics which returns the values of `q1` and `q2` for the position you want:
 ```python
-qi = pelican_robot.inverse('', Px, Py)
+qi = inverse_k(Px, Py)
 # Px is the desired x-coordinate
 # Py is the desired y-coordinate
 ```
