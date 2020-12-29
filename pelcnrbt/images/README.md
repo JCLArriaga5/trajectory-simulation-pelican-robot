@@ -1,0 +1,1 @@
+The icon was inspired by figure 5.2 from Chapter [Case Study: The Pelican Prototype Robot](https://link.springer.com/chapter/10.1007%2F1-85233-999-3_6) from the book [Control of Robot Manipulators in Joint Space](https://link.springer.com/book/10.1007/b135572).
