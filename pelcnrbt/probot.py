@@ -3,7 +3,7 @@
 # Trajectory simulation of the Pelican Prototype Robot of the CICESE Research
 # Center, Mexico. The position control used was PD control with gravity
 # compensation and the 4th order Runge-Kutta method.
-# @autor: José Carlos López Arriaga
+#
 # References
 #   Kelly, R., Davila, V. S., & Perez, J. A. L. (2006). Control of robot
 #   manipulators in joint space. Springer Science & Business Media.
@@ -24,7 +24,15 @@ def plot_link(p_i, p_f, *args, **kwargs):
     """
 
     plt.plot([p_i[0], p_i[0] + p_f[0]], [p_i[1], p_i[1] + p_f[1]], *args, **kwargs)
-    plt.scatter(p_i[0], p_i[1], facecolor=args[0])
+    # If the color is not specified, the np.scatter decorator will default to itself.
+    if len(args) == 0:
+        plt.scatter(p_i[0], p_i[1])
+    # Otherwise the color is used regardless of the line style. Since the line
+    # style does not attribute to np.sactter.
+    else:
+        color = ''.join([args[0][i] for i in range(len(args[0]))
+                         if args[0][i] not in list(plt.Line2D.lineStyles)])
+        plt.scatter(p_i[0], p_i[1], facecolor=color)
 
 def direct_k(q1, q2):
     """
@@ -464,8 +472,10 @@ class pelican_robot:
 
         # Draw point in desired position
         ax.scatter(self.dp[0], self.dp[1], marker='X', s=100, facecolor='#65009C')
-        # Draw Home Position
-        ax.plot([0.0, 0.0], [0.0, -0.52], '--k')
+        # Draw initial position
+        plot_link([0.0, 0.0], direct_k(self.qs[0][0], self.qs[0][1])[0], 'k--')
+        plot_link(direct_k(self.qs[0][0], self.qs[0][1])[0],
+                  direct_k(self.qs[0][0], self.qs[0][1])[1], 'k--')
         # Draw Final Position
         plot_link([0.0, 0.0], direct_k(self.qs[len(self.qs) - 1][0], self.qs[len(self.qs) - 1][1])[0],
                   'r', label='$L_1$')
