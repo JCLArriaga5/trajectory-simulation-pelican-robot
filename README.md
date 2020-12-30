@@ -31,6 +31,12 @@ tf = 1.0
 sim = pelican_robot(pd, kp, kv)
 qsf, qpsf = sim.RK4(ti, qi, vi, tf)
 ```
+`Kp`, `Kv` are symmetric positive definite and selected by the designer and are commonly referred to as position gain and velocity (or derivative) gain, respectively. In form:
+```
+Kp = diag{kp} = diag{30} [Nm/rad]
+Kv = diag{kv} = diag{7, 3} [Nm/rad]
+```
+
 the `qi` angles were set to zero to start from home position in this case, if you want it to start from another position you can use the `inverse_k` function which is the robot inverse kinematics which returns the values of `q1` and `q2` for the position you want:
 ```python
 qi = inverse_k(Px, Py)
