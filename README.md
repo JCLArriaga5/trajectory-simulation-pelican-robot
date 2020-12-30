@@ -33,7 +33,7 @@ qsf, qpsf = sim.RK4(ti, qi, vi, tf)
 ```
 `Kp`, `Kv` are symmetric positive definite and selected by the designer and are commonly referred to as position gain and velocity (or derivative) gain, respectively. In form:
 ```
-Kp = diag{kp} = diag{30} [Nm/rad]
+Kp = diag{kp} = diag{30, 30} [Nm/rad]
 Kv = diag{kv} = diag{7, 3} [Nm/rad]
 ```
 
