@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 # -*- coding: utf-8 -*-
 #
 # Trajectory simulation of the Pelican Prototype Robot of the CICESE Research
