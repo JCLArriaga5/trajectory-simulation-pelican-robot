@@ -13,6 +13,12 @@ $ git clone https://github.com/JCLArriaga5/trajectory-simulation-pelican-robot.g
 ## Simulation
 You can review the simulation carried out in a Colab notebook using the functions created in [probot](../master/pelcnrbt/probot.py), by clicking here: [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1-ScjnXOpJHxfpcLepvf9Jc5cyq6QAOzP?usp=sharing)
 
+or use the shell/command prompt for run simulation in [probot](../master/pelcnrbt/probot.py) Python File:
+```sh
+:~/trajectory-simulation-pelican-robot$ cd pelcnrbt/
+:~/trajectory-simulation-pelican-robot/pelcnrbt$ python probot.py
+```
+
 The simulation must be in order:
 ```python
 # Desired position
