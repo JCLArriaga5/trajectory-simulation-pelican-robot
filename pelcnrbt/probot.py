@@ -9,6 +9,7 @@
 #   Kelly, R., Davila, V. S., & Perez, J. A. L. (2006). Control of robot
 #   manipulators in joint space. Springer Science & Business Media.
 
+import os
 import numpy as np
 import matplotlib.pyplot as plt
 from tkinter import PhotoImage
@@ -112,9 +113,10 @@ class realtime:
         # Change window title
         self.fig.canvas.set_window_title('Pelican Robot: Simulation')
         # Change icon window
-        plc_anim_w = plt.get_current_fig_manager()
-        img = PhotoImage(file='images/pelican-robot-icon.png')
-        plc_anim_w.window.tk.call('wm', 'iconphoto', plc_anim_w.window._w, img)
+        if os.path.exists('../images'):
+            plc_anim_w = plt.get_current_fig_manager()
+            img = PhotoImage(file='images/pelican-robot-icon.png')
+            plc_anim_w.window.tk.call('wm', 'iconphoto', plc_anim_w.window._w, img)
 
         # Limits and appearance of the pelican robot animation
         self.robot.set_xlim((-0.6, 0.6))
@@ -406,8 +408,14 @@ class pelican_robot:
         """
 
         if len(self.vs) == 0:
-            str_error = 'First run RK4 to obtain each iteration of the solution for the desired position to be able to graph'
-            raise ValueError(str_error)
+            raise ValueError("""First run RK4 to obtain each iteration of the
+                solution for the desired position to be able to graph""")
+
+        # Change icon window
+        if os.path.exists('../images'):
+            plc_anim_w = plt.get_current_fig_manager()
+            img = PhotoImage(file='images/pelican-robot-icon.png')
+            plc_anim_w.window.tk.call('wm', 'iconphoto', plc_anim_w.window._w, img)
 
         plt.title('Graph of velocity Behavior')
         plt.plot(self.ts, [(self.vs[i][0]) for i in range(len(self.vs))], "r--",
@@ -426,8 +434,14 @@ class pelican_robot:
         """
 
         if len(self.error) == 0:
-            str_error = 'First run RK4 to obtain each iteration of the solution for the desired position to be able to graph'
-            raise ValueError(str_error)
+            raise ValueError("""First run RK4 to obtain each iteration of the
+                solution for the desired position to be able to graph""")
+
+        # Change icon window
+        if os.path.exists('../images'):
+            plc_anim_w = plt.get_current_fig_manager()
+            img = PhotoImage(file='images/pelican-robot-icon.png')
+            plc_anim_w.window.tk.call('wm', 'iconphoto', plc_anim_w.window._w, img)
 
         plt.title("Graph of $ \\tilde{q} $")
         # Plot
@@ -450,13 +464,19 @@ class pelican_robot:
         """
 
         if len(self.qs) == 0:
-            str_error = 'First run RK4 to obtain each iteration of the solution for the desired position to be able to graph'
-            raise ValueError(str_error)
+            raise ValueError("""First run RK4 to obtain each iteration of the
+                solution for the desired position to be able to graph""")
 
         if not 1 <= stp <= 100:
             raise ValueError('The number should be in range (1 - 100)')
 
         fig, ax = plt.subplots()
+        # Change icon window
+        if os.path.exists('../images'):
+            plc_anim_w = plt.get_current_fig_manager()
+            img = PhotoImage(file='images/pelican-robot-icon.png')
+            plc_anim_w.window.tk.call('wm', 'iconphoto', plc_anim_w.window._w, img)
+
         # Work space of robot
         ax.set_xlim(-0.6, 0.6)
         ax.set_ylim(-0.6, 0.6)
