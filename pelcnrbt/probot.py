@@ -84,7 +84,7 @@ def inverse_k(Px, Py):
     __tmp = np.arctan2((l2 * np.sin(q2)), (l1 + l2 * np.cos(q2)))
     q1 = np.arctan2(Px, - Py) - __tmp
 
-    return q1, q2
+    return [q1, q2]
 
 class realtime:
     """
@@ -254,8 +254,20 @@ class pelican_robot:
         """
 
         self.dp = dp
-        self.kp = kp
-        self.kv = kv
+        if len(kp) != 2:
+            raise ValueError('{} Cannot have more than two lists within itself'.format('kp = ' + str(kp)))
+        if all([True if len(kp[i]) == 2 else False for i in range(len(kp))]) is not False:
+            self.kp = kp
+        else:
+            raise ValueError(""" Inner lists should only contain 2 values like:
+                kp = [[gain_value, 0.0], [0.0, gain_value]] """)
+        if len(kv) != 2:
+            raise ValueError('{} Cannot have more than two lists within itself'.format('kv = ' + str(kv)))
+        if all([True if len(kv[i]) == 2 else False for i in range(len(kv))]) is not False:
+            self.kv = kv
+        else:
+            raise ValueError(""" Inner lists should only contain 2 values like:
+                kv = [[gain_value, 0.0], [0.0, gain_value]] """)
         self.ts = []
         self.qs = []
         self.vs = []
