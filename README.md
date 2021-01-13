@@ -72,7 +72,7 @@ sim.plot_trajectory(50)
 <p align="center"><img src="images/trajectory_graph.png"></p>
 
 ### Simulation Animated
-If you want to see the animation of the trajectory to the desired position and the behavior of the error during the set time, use the parameter `display=True` in the RK4 function, as shown:
+If you want to see the animation of the trajectory to the desired position and the behavior of the error during the set time, use the parameter `display=True` in the RK4 function, as show:
 ```python
 sim = pelican_robot(pd, kp, kv)
 qsf, qpsf = sim.RK4(ti, qi, vi, tf, display=True)
