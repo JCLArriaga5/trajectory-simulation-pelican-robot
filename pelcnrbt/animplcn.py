@@ -51,8 +51,8 @@ def check_pts_frmt(points):
         raise ValueError('The list is empty')
     else:
         for chk in range(len(points)):
-            if len(points[chk]) != 2:
-                raise ValueError('An element is not in the format [px, py]')
+            if len(points[chk]) != 2 or type(points[chk]) is not list:
+                raise ValueError('The {} element is not in the format [px, py]'.format(points[chk]))
 
 class get_trj_vals:
     """
