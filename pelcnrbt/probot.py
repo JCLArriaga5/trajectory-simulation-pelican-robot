@@ -86,6 +86,25 @@ def inverse_k(Px, Py):
 
     return [q1, q2]
 
+def pts_in_range(point):
+    c = np.linspace(0, 2 * np.pi)
+    r_space = [[(2 * 0.25) * np.cos(c[i]), (2 * 0.25) * np.sin(c[i])]
+                for i in range(len(c))]
+    x_min = min([r_space[x][0] for x in range(len(r_space))])
+    y_min = min([r_space[y][1] for y in range(len(r_space))])
+
+    x_max = max([r_space[x][0] for x in range(len(r_space))])
+    y_max = max([r_space[y][1] for y in range(len(r_space))])
+
+    if x_min <= point[0] <= x_max and y_min <= point[1] <= y_max:
+        return True
+    else:
+        print("""The range of values is:
+            x[{}, {}]
+            y[{}, {}]""".format(x_min, x_max, y_min, y_max))
+
+        return False
+
 class realtime:
     """
     Generate animation of the trajectory and how it was reducing the qt error
