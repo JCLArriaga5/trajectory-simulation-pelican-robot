@@ -86,25 +86,6 @@ def inverse_k(Px, Py):
 
     return [q1, q2]
 
-def pts_in_range(point):
-    c = np.linspace(0, 2 * np.pi)
-    r_space = [[(2 * 0.25) * np.cos(c[i]), (2 * 0.25) * np.sin(c[i])]
-                for i in range(len(c))]
-    x_min = min([r_space[x][0] for x in range(len(r_space))])
-    y_min = min([r_space[y][1] for y in range(len(r_space))])
-
-    x_max = max([r_space[x][0] for x in range(len(r_space))])
-    y_max = max([r_space[y][1] for y in range(len(r_space))])
-
-    if x_min <= point[0] <= x_max and y_min <= point[1] <= y_max:
-        return True
-    else:
-        print("""The range of values is:
-            x[{}, {}]
-            y[{}, {}]""".format(x_min, x_max, y_min, y_max))
-
-        return False
-
 class realtime:
     """
     Generate animation of the trajectory and how it was reducing the qt error
@@ -272,7 +253,10 @@ class pelican_robot:
         kv : Velocity gain. e.g. [[7.0, 0.0],[0.0, 2.0]]
         """
 
-        self.dp = dp
+        if pelican_robot.pts_in_range(dp):
+            self.dp = dp
+        else:
+            raise ValueError('{} not in range of workspace robot'.format(str(dp)))
         if len(kp) != 2:
             raise ValueError('{} Cannot have more than two lists within itself'.format('kp = ' + str(kp)))
         if all([True if len(kp[i]) == 2 else False for i in range(len(kp))]) is not False:
@@ -292,6 +276,26 @@ class pelican_robot:
         self.vs = []
         self.error = []
         self.tau = 0
+
+    @staticmethod
+    def pts_in_range(point):
+        c = np.linspace(0, 2 * np.pi)
+        r_space = [[(2 * 0.25) * np.cos(c[i]), (2 * 0.25) * np.sin(c[i])]
+                    for i in range(len(c))]
+        x_min = min([r_space[x][0] for x in range(len(r_space))])
+        y_min = min([r_space[y][1] for y in range(len(r_space))])
+
+        x_max = max([r_space[x][0] for x in range(len(r_space))])
+        y_max = max([r_space[y][1] for y in range(len(r_space))])
+
+        if x_min <= point[0] <= x_max and y_min <= point[1] <= y_max:
+            return True
+        else:
+            print("""The range of values is:
+                x[{}, {}]
+                y[{}, {}]""".format(x_min, x_max, y_min, y_max))
+
+            return False
 
     def RK4(self, ti, qi, vi, tf, h=0.001, display=False):
         """
