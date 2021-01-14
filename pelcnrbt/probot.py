@@ -279,6 +279,13 @@ class pelican_robot:
 
     @staticmethod
     def pts_in_range(point):
+        """
+        Returns True if the point is within the range of the robot workspace,
+        otherwise it returns False.
+        """
+
+        # We consider that the range of the robot's workspace is within the area
+        # of the circle formed by the radius that forms approximately the sum of its links.
         c = np.linspace(0, 2 * np.pi)
         r_space = [[(2 * 0.25) * np.cos(c[i]), (2 * 0.25) * np.sin(c[i])]
                     for i in range(len(c))]
@@ -309,7 +316,7 @@ class pelican_robot:
         tf : time(s) that you want to evaluate in the diff system
         h : Integration step
         display : bool
-            If it is true, it shows in real time how the angles of each link
+            If it is True, it shows in real time how the angles of each link
             changed and the error reduction to the desired point.
 
         Returns
