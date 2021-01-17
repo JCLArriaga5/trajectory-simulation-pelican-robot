@@ -242,7 +242,7 @@ class pelican_robot:
         Function to return values of each iteration in RK4.
     """
 
-    def __init__(self, dp, kp, kv):
+    def __init__(self, dp, kp, kv, **kwargs):
         """
         Constructor
 
@@ -303,6 +303,27 @@ class pelican_robot:
                 y[{}, {}]""".format(x_min, x_max, y_min, y_max))
 
             return False
+
+    @staticmethod
+    def G(q1, q2):
+        """
+        Funtion to evaluate vector of gravitational forces and torque
+
+        It is used as a function so that it can be used in the controller
+        equation if necessary.
+        """
+
+        # Required robot parameters
+        l1 = l2 = 0.26 # meters
+        lc1 = 0.0983 # meters
+        lc2 = 0.0229 # meters
+        m1 = 6.5225 # Kg
+        m2 = 2.0458 # Kg
+        g = 9.81 # m / s²
+
+        G11 = (m1 * lc1 + m2 * l1) * g * np.sin(q1) + m2 * lc2 * g * np.sin(q1 + q2)
+        G12 = m2 * lc2 * g * np.sin(q1 + q2)
+        return [G11, G12]
 
     def RK4(self, ti, qi, vi, tf, h=0.001, display=False):
         """
@@ -426,21 +447,16 @@ class pelican_robot:
             [C21, C22]
         ]
 
-        # Vector of gravitational forces and torques
-        G11 = (m1 * lc1 + m2 * l1) * g * np.sin(q[0]) + m2 * lc2 * g * np.sin(q[0] + q[1])
-        G12 = m2 * lc2 * g * np.sin(q[0] + q[1])
-        G = [G11, G12]
-
         if len(self.tau) == 0:
             str_error = 'The tau value of the "controller function" is needed.'
             raise ValueError(str_error)
         else:
             # Gravity Compensation
-            __tau = self.tau + G
+            __tau = self.tau + pelican_robot.G(q[0], q[1])
 
         Bi = np.linalg.inv(B)
         Cqp = np.dot(C, v)
-        qpp = np.matmul(Bi, (__tau - Cqp - G))
+        qpp = np.matmul(Bi, (__tau - Cqp - pelican_robot.G(q[0], q[1])))
 
         return qpp
 
