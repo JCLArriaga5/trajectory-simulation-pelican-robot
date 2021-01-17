@@ -130,7 +130,7 @@ class realtime:
         self.qt.set_ylabel("$ \\tilde{q} $", rotation='horizontal', fontsize='large')
         self.qt.grid('on', linestyle='--')
 
-    def show(self, ts, qs, qt, dp):
+    def show(self, ts, qs, qt, dp, ctrl_type):
         """
         Function to generate the animation using the parameters necessary for
         the animation.
@@ -152,14 +152,15 @@ class realtime:
         qtmax = max(max([qt[i][0] for i in range(len(qt))]), max([qt[i][1] for i in range(len(qt))]))
         self.qt.set_ylim((qtmin, qtmax))
         # Text for formulas in qt plot
-        str_controller = r'$  \tau = K_{p} \tilde{q} - K_{v} \dot{q} + g(q) $'
-        str_qt = r'$ \tilde{q} := q_d - q(t) $'
-        self.qt.text((max(ts) / 2), (qtmax), 'Controller equation',
-                     horizontalalignment='center', verticalalignment='top')
-        self.qt.text((max(ts) / 2), (qtmax - 200 * 0.001), str_controller,
-                     horizontalalignment='center', verticalalignment='top')
-        self.qt.text((max(ts) / 2), (qtmax - 500 * 0.001), str_qt, horizontalalignment='center',
-                     verticalalignment='top')
+        if ctrl_type == 'PD-GC':
+            str_controller = r'$  \tau = K_{p} \tilde{q} - K_{v} \dot{q} + g(q) $'
+            str_qt = r'$ \tilde{q} := q_d - q(t) $'
+            self.qt.text((max(ts) / 2), (qtmax), 'Controller equation',
+                         horizontalalignment='center', verticalalignment='top')
+            self.qt.text((max(ts) / 2), (qtmax - 200 * 0.001), str_controller,
+                         horizontalalignment='center', verticalalignment='top')
+            self.qt.text((max(ts) / 2), (qtmax - 500 * 0.001), str_qt, horizontalalignment='center',
+                         verticalalignment='top')
         # Some elements for the animation of the pelican robot
         self.robot.set_title(r"Pelican Robot: Trajectory to [{}, {}]".format(dp[0], dp[1]))
         self.robot.scatter(dp[0], dp[1], facecolor='k')
@@ -283,11 +284,12 @@ class pelican_robot:
         else:
             raise ValueError(""" Inner lists should only contain 2 values like:
                 kv = [[gain_value, 0.0], [0.0, gain_value]] """)
+        self.ctrl_type = pelican_robot.chk_kwarg(kwarg)
         self.ts = []
         self.qs = []
         self.vs = []
         self.error = []
-        self.tau = 0
+        self.tau = [0.0, 0.0]
 
     @staticmethod
     def pts_in_range(point):
@@ -408,13 +410,17 @@ class pelican_robot:
             self.ts.append(ti)
 
         if display == True:
-            realtime().show(self.ts, self.qs, self.error, self.dp)
+            realtime().show(self.ts, self.qs, self.error, self.dp, self.ctrl_type)
 
         return qi, vi
 
     def controller(self, qst, qpst):
         """
-        Proportional Control plus Velocity Feedback and PD Control
+        Types of position control:
+            - Proportional control plus velocity feedback and Proportional
+              Derivative (PD) control
+            - PD control with gravity compensation
+            - PD control with desired gravity compensation
 
         The controller's gains were modified to try to reduce the error
 
@@ -431,7 +437,12 @@ class pelican_robot:
         qds = inverse_k(self.dp[0], self.dp[1])
         qt = [qds[0] - qst[0], qds[1] - qst[1]]
 
-        self.tau = np.dot(self.kp, qt) - np.dot(self.kv, qpst)
+        if self.ctrl_type == 'PD':
+            self.tau = np.dot(self.kp, qt) - np.dot(self.kv, qpst)
+        elif self.ctrl_type == 'PD-GC':
+            self.tau = np.dot(self.kp, qt) - np.dot(self.kv, qpst) + pelican_robot.G(qst[0], qst[1])
+        elif self.ctrl_type == 'PD-dGC':
+            self.tau = np.dot(self.kp, qt) - np.dot(self.kv, qpst) + pelican_robot.G(qds[0], qds[1])
 
         return qt
 
@@ -485,8 +496,7 @@ class pelican_robot:
             str_error = 'The tau value of the "controller function" is needed.'
             raise ValueError(str_error)
         else:
-            # Gravity Compensation
-            __tau = self.tau + pelican_robot.G(q[0], q[1])
+            __tau = self.tau
 
         Bi = np.linalg.inv(B)
         Cqp = np.dot(C, v)
@@ -577,7 +587,7 @@ class pelican_robot:
 
         for n in _stp_:
             # Draw each number of steps
-            plt.title('Pelican Robot: Desired Position trajectory with PD-Controller')
+            plt.title('Pelican Robot: Desired Position trajectory with Position Control')
             plot_link([0.0, 0.0], direct_k(self.qs[n][0], self.qs[n][1])[0], '#83EB94')
             plot_link(direct_k(self.qs[n][0], self.qs[n][1])[0],
                       direct_k(self.qs[n][0], self.qs[n][1])[1], '#83EB94')
@@ -624,7 +634,7 @@ if __name__ == '__main__':
     ti = 0.0
     tf = 1.0
 
-    sim = pelican_robot(dp, kp, kv)
+    sim = pelican_robot(dp, kp, kv, control_law='PD-GC')
     qsf, qpsf = sim.RK4(ti, qi, vi, tf)
 
     print('==================================================================')
