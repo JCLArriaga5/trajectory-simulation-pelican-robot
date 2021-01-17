@@ -212,6 +212,12 @@ class pelican_robot:
         Position gain in matrix form.
     kv : list array
         Velocity gain in matrix form
+    **kwarg : Controller type, default is PD
+        control_law = {'PD', 'PD-GC', 'PD-dGC'}
+        PD := Proportional control plus velocity feedback and Proportional
+              Derivative(PD) control
+        PD-GC := PD control with gravity compensation
+        PD-dGC := PD control with desired gravity compensation
 
     Methods
     -------
@@ -242,7 +248,7 @@ class pelican_robot:
         Function to return values of each iteration in RK4.
     """
 
-    def __init__(self, dp, kp, kv, **kwargs):
+    def __init__(self, dp, kp, kv, **kwarg):
         """
         Constructor
 
@@ -251,6 +257,12 @@ class pelican_robot:
         dp : Desired position ([Px, Py] in R²)
         kp : Position gain. e.g. [[30.0, 0.0],[0.0, 30.0]]
         kv : Velocity gain. e.g. [[7.0, 0.0],[0.0, 2.0]]
+        **kwarg : Controller type, default is PD
+            control_law = {'PD', 'PD-GC', 'PD-dGC'}
+            PD := Proportional control plus velocity feedback and Proportional
+                  Derivative(PD) control
+            PD-GC := PD control with gravity compensation
+            PD-dGC := PD control with desired gravity compensation
         """
 
         if pelican_robot.pts_in_range(dp):
@@ -303,6 +315,28 @@ class pelican_robot:
                 y[{}, {}]""".format(x_min, x_max, y_min, y_max))
 
             return False
+
+    @staticmethod
+    def chk_kwarg(kwarg):
+        """
+        Function to check that kwarg is in the correct form and return the type
+        of controller to use
+        """
+        if len(kwarg) == 0:
+            kwarg['control_law'] = 'PD'
+        elif len(kwarg) != 1:
+            raise ValueError('kwarg attributes only one parameter')
+        for key in kwarg.keys():
+            if key not in {'control_law'}:
+                raise ValueError('Controller has no attribute {}'.format(key))
+            elif kwarg[key] not in {'PD', 'PD-GC', 'PD-dGC'}:
+                raise ValueError('{} has no attribute {}'.format(key, kwarg[key]))
+            elif kwarg[key] == 'PD':
+                return kwarg[key]
+            elif kwarg[key] == 'PD-GC':
+                return kwarg[key]
+            elif kwarg[key] == 'PD-dGC':
+                return kwarg[key]
 
     @staticmethod
     def G(q1, q2):
