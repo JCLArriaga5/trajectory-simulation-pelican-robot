@@ -34,7 +34,7 @@ vi = [0.0, 0.0]
 ti = 0.0
 tf = 1.0
 
-sim = pelican_robot(pd, kp, kv)
+sim = pelican_robot(pd, kp, kv, control_law='PD-GC')
 qsf, qpsf = sim.RK4(ti, qi, vi, tf)
 ```
 `Kp`, `Kv` are symmetric positive definite and selected by the designer and are commonly referred to as position gain and velocity (or derivative) gain, respectively. In form:
@@ -74,7 +74,7 @@ sim.plot_trajectory(50)
 ### Simulation Animated
 If you want to see the animation of the trajectory to the desired position and the behavior of the error during the set time, use the parameter `display=True` in the RK4 function, as show:
 ```python
-sim = pelican_robot(pd, kp, kv)
+sim = pelican_robot(pd, kp, kv, control_law='PD-GC')
 qsf, qpsf = sim.RK4(ti, qi, vi, tf, display=True)
 ```
 
