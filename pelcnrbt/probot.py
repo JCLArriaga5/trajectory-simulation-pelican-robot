@@ -531,7 +531,7 @@ class pelican_robot:
                  label = "$ \\dot{q_2} $")
         plt.legend()
         plt.grid()
-        plt.xlabel("$ t $", fontsize='large')
+        plt.xlabel("$ t(s) $", fontsize='large')
         plt.ylabel("$ \\frac{rad}{s} $", rotation='horizontal', fontsize='x-large')
 
     def plot_q_error(self):
@@ -558,8 +558,8 @@ class pelican_robot:
                  "b--", label = "$ \\tilde{q_2} $")
         plt.legend()
         plt.grid()
-        plt.xlabel("$ t $", fontsize='large')
-        plt.ylabel("$ \\tilde{q} $", rotation='horizontal', fontsize='large')
+        plt.xlabel("$ t(s) $", fontsize='large')
+        plt.ylabel("$ \\tilde{q}(rad) $", rotation='horizontal', fontsize='large')
 
     def plot_trajectory(self, stp):
         """
