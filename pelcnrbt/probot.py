@@ -152,15 +152,20 @@ class realtime:
         qtmax = max(max([qt[i][0] for i in range(len(qt))]), max([qt[i][1] for i in range(len(qt))]))
         self.qt.set_ylim((qtmin, qtmax))
         # Text for formulas in qt plot
-        if ctrl_type == 'PD-GC':
-            str_controller = r'$  \tau = K_{p} \tilde{q} - K_{v} \dot{q} + g(q) $'
-            str_qt = r'$ \tilde{q} := q_d - q(t) $'
-            self.qt.text((max(ts) / 2), (qtmax), 'Controller equation',
-                         horizontalalignment='center', verticalalignment='top')
-            self.qt.text((max(ts) / 2), (qtmax - 200 * 0.001), str_controller,
-                         horizontalalignment='center', verticalalignment='top')
-            self.qt.text((max(ts) / 2), (qtmax - 500 * 0.001), str_qt, horizontalalignment='center',
-                         verticalalignment='top')
+        if ctrl_type == 'PD':
+            str_controller = r'$ \tau = K_{p} \tilde{q} - K_{v} \dot{q} $'
+        elif ctrl_type == 'PD-GC':
+            str_controller = r'$ \tau = K_{p} \tilde{q} - K_{v} \dot{q} + g(q) $'
+        elif ctrl_type == 'PD-dGC':
+            str_controller = r'$ \tau = K_{p} \tilde{q} - K_{v} \dot{q} + g(q_d) $'
+
+        str_qt = r'$ \tilde{q} := q_d - q(t) $'
+        self.qt.text((max(ts) / 2), (qtmax), 'Controller equation',
+                     horizontalalignment='center', verticalalignment='top')
+        self.qt.text((max(ts) / 2), (qtmax - 200 * 0.001), str_controller,
+                     horizontalalignment='center', verticalalignment='top')
+        self.qt.text((max(ts) / 2), (qtmax - 500 * 0.001), str_qt, horizontalalignment='center',
+                     verticalalignment='top')
         # Some elements for the animation of the pelican robot
         self.robot.set_title(r"Pelican Robot: Trajectory to [{}, {}]".format(dp[0], dp[1]))
         self.robot.scatter(dp[0], dp[1], facecolor='k')
