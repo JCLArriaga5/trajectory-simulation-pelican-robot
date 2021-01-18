@@ -205,8 +205,7 @@ class realtime:
 
 class pelican_robot:
     """
-    Simulate a desired potion for the pelican robot by means of a PD controller
-    with gravity compensation and graph the behaviors
+    Simulate a desired potion for the pelican robot with position control
 
     ...
 
@@ -215,9 +214,9 @@ class pelican_robot:
     dp : list
         Desired position [Px, Py]
     kp : list array
-        Position gain in matrix form.
+        Position gain in matrix form, e.g. [[30.0, 0.0],[0.0, 30.0]].
     kv : list array
-        Velocity gain in matrix form
+        Velocity gain in matrix form, e.g. [[7.0, 0.0],[0.0, 2.0]].
     **kwarg : Controller type, default is PD
         control_law = {'PD', 'PD-GC', 'PD-dGC'}
         PD := Proportional control plus velocity feedback and Proportional
@@ -303,8 +302,9 @@ class pelican_robot:
         otherwise it returns False.
         """
 
-        # We consider that the range of the robot's workspace is within the area
-        # of the circle formed by the radius that forms approximately the sum of its links.
+        # We consider that the range of the pelican robot workspace is within
+        # the area of the circle formed by the radius that forms approximately
+        # the sum of its links.
         c = np.linspace(0, 2 * np.pi)
         r_space = [[(2 * 0.25) * np.cos(c[i]), (2 * 0.25) * np.sin(c[i])]
                     for i in range(len(c))]
