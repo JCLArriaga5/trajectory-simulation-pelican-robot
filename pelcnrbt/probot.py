@@ -393,19 +393,19 @@ class pelican_robot:
             qt = self.controller(qi, vi)
             self.error.append(qt)
 
-            K1 = vi
-            m1 = self.BCG(qi, vi)
+            k1 = vi
+            m1 = self.MCG(qi, vi)
 
-            K2 = vi + np.dot(m1, h / 2)
-            m2 = self.BCG(qi + np.dot(K1, h / 2), vi + np.dot(m1, h / 2))
+            k2 = vi + np.dot(m1, h / 2)
+            m2 = self.MCG(qi + np.dot(k1, h / 2), vi + np.dot(m1, h / 2))
 
-            K3 = vi + np.dot(m2, h / 2)
-            m3 = self.BCG(qi + np.dot(K2, h / 2), vi + np.dot(m2, h / 2))
+            k3 = vi + np.dot(m2, h / 2)
+            m3 = self.MCG(qi + np.dot(k2, h / 2), vi + np.dot(m2, h / 2))
 
-            K4 = vi + np.dot(m3, h)
-            m4 = self.BCG(qi + np.dot(K3, h), vi + np.dot(m3, h))
+            k4 = vi + np.dot(m3, h)
+            m4 = self.MCG(qi + np.dot(k3, h), vi + np.dot(m3, h))
 
-            qi += (h / 6) * (K1 + 2 * (K2 + K3) + K4)
+            qi += (h / 6) * (k1 + 2 * (k2 + k3) + k4)
             self.qs.append([qi[0], qi[1]])
 
             vi += (h / 6) * (m1 + 2 * (m2 + m3) + m4)
@@ -451,9 +451,13 @@ class pelican_robot:
 
         return qt
 
-    def BCG(self, q, v):
+    def MCG(self, q, v):
         """
         Dynamic model of pelican robot with Controller and gravity compensation
+        tau = M(q)\Ddot{q} + C(q, \dot{q})\dot{q} + G(q)
+            M(q) := Inertial Matrix
+            C(q, \dot{q}) := Centrifugal and Coriolis Forces Matrix
+            G(q) := Gravitational Torques Vector
 
         Parameters
         ----------
@@ -476,14 +480,14 @@ class pelican_robot:
         g = 9.81 # m / s²
 
         # Inertial Matrix
-        B11 = m1 * lc1 ** 2 + m2 * (l1 ** 2 + lc2 ** 2 + 2 * l1 * lc2 * np.cos(q[1])) + I1 + I2
-        B12 = m2 * (lc2 ** 2 + l1 * lc2 * np.cos(q[1])) + I2
-        B21 = m2 * (lc2 ** 2 + l1 * lc2 * np.cos(q[1])) + I2
-        B22 = m2 * lc2 ** 2 + I2
+        M11 = m1 * lc1 ** 2 + m2 * (l1 ** 2 + lc2 ** 2 + 2 * l1 * lc2 * np.cos(q[1])) + I1 + I2
+        M12 = m2 * (lc2 ** 2 + l1 * lc2 * np.cos(q[1])) + I2
+        M21 = m2 * (lc2 ** 2 + l1 * lc2 * np.cos(q[1])) + I2
+        M22 = m2 * lc2 ** 2 + I2
 
-        B = [
-            [B11, B12],
-            [B21, B22]
+        M = [
+            [M11, M12],
+            [M21, M22]
         ]
 
         # Vector of centrifugal and Coriolis forces
@@ -503,9 +507,9 @@ class pelican_robot:
         else:
             __tau = self.tau
 
-        Bi = np.linalg.inv(B)
+        Minv = np.linalg.inv(M)
         Cqp = np.dot(C, v)
-        qpp = np.matmul(Bi, (__tau - Cqp - pelican_robot.G(q[0], q[1])))
+        qpp = np.matmul(Minv, (__tau - Cqp - pelican_robot.G(q[0], q[1])))
 
         return qpp
 
