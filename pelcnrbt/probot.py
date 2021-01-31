@@ -292,7 +292,7 @@ class pelican_robot:
         self.ts = []
         self.qs = []
         self.vs = []
-        self.error = []
+        self.qerr = []
         self.tau = [0.0, 0.0]
 
     @staticmethod
@@ -387,11 +387,9 @@ class pelican_robot:
         vi : Values of final velocities [qp1, qp2] to desired position
         """
 
-        st = np.arange(ti, tf, h)
-
-        for _ in st:
+        for _ in np.arange(ti, tf, h):
             qt = self.controller(qi, vi)
-            self.error.append(qt)
+            self.qerr.append(qt)
 
             k1 = vi
             m1 = self.MCG(qi, vi)
@@ -415,7 +413,7 @@ class pelican_robot:
             self.ts.append(ti)
 
         if display == True:
-            realtime().show(self.ts, self.qs, self.error, self.dp, self.ctrl_type)
+            realtime().show(self.ts, self.qs, self.qerr, self.dp, self.ctrl_type)
 
         return qi, vi
 
@@ -544,7 +542,7 @@ class pelican_robot:
         until reaching the desired position.
         """
 
-        if len(self.error) == 0:
+        if len(self.qerr) == 0:
             raise ValueError("""First run RK4 to obtain each iteration of the
                 solution for the desired position to be able to graph""")
 
@@ -556,9 +554,9 @@ class pelican_robot:
 
         plt.title("Graph of $ \\tilde{q} $")
         # Plot
-        plt.plot(self.ts, [(self.error[i][0]) for i in range(len(self.error))],
+        plt.plot(self.ts, [(self.qerr[i][0]) for i in range(len(self.qerr))],
                  "r--", label = "$ \\tilde{q_1} $")
-        plt.plot(self.ts, [(self.error[i][1]) for i in range(len(self.error))],
+        plt.plot(self.ts, [(self.qerr[i][1]) for i in range(len(self.qerr))],
                  "b--", label = "$ \\tilde{q_2} $")
         plt.legend()
         plt.grid()
@@ -592,9 +590,7 @@ class pelican_robot:
         ax.set_xlim(-0.6, 0.6)
         ax.set_ylim(-0.6, 0.6)
 
-        _stp_ = np.arange(0, len(self.qs), len(self.qs) // stp)
-
-        for n in _stp_:
+        for n in np.arange(0, len(self.qs), len(self.qs) // stp):
             # Draw each number of steps
             plt.title('Pelican Robot: Desired Position trajectory with Position Control')
             plot_link([0.0, 0.0], direct_k(self.qs[n][0], self.qs[n][1])[0], '#83EB94')
