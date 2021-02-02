@@ -21,8 +21,11 @@ def plot_link(p_i, p_f, *args, **kwargs):
 
     Parameters
     -----------
-    pi : Initial point of link in R²
-    pf : Final point of link in R²
+    p_i : list [x_i, y_i]
+        Initial point of link in R²
+
+    p_f : list [x_f, y_f]
+        Final point of link in R²
     """
 
     plt.plot([p_i[0], p_i[0] + p_f[0]], [p_i[1], p_i[1] + p_f[1]], *args, **kwargs)
@@ -33,7 +36,7 @@ def plot_link(p_i, p_f, *args, **kwargs):
     # style does not attribute to np.sactter.
     else:
         color = ''.join([args[0][i] for i in range(len(args[0]))
-                         if args[0][i] not in list(plt.Line2D.lineStyles)])
+                         if args[0][i] not in list(plt.Line2D.lineStyles) + ['.']])
         plt.scatter(p_i[0], p_i[1], facecolor=color)
 
 def direct_k(q1, q2):
