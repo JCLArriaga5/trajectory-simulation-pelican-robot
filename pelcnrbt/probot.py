@@ -15,6 +15,35 @@ import matplotlib.pyplot as plt
 from tkinter import PhotoImage
 from matplotlib.animation import FuncAnimation
 
+class binsrch:
+    def __init__(self, list):
+        self.lst = list
+        self.n = len(list) // 2
+
+    def __max__(self):
+        return max(binsrch.max_value(self.lst[:self.n + 1]),
+                   binsrch.max_value(self.lst[-(self.n + 1):]))
+
+    def __min__(self):
+        return min(binsrch.min_value(self.lst[:self.n + 1]),
+                   binsrch.min_value(self.lst[-(self.n + 1):]))
+
+    @staticmethod
+    def max_value(list):
+        if len(list) == 1:
+            return list[0]
+        else:
+            mx = binsrch.max_value(list[1:])
+            return mx if mx > list[0] else list[0]
+
+    @staticmethod
+    def min_value(list):
+        if len(list) == 1:
+            return list[0]
+        else:
+            mn = binsrch.min_value(list[1:])
+            return mn if mn < list[0] else list[0]
+
 def plot_link(p_i, p_f, *args, **kwargs):
     """
     Function to graph a link in R²
@@ -149,10 +178,13 @@ class realtime:
              should reach in the animation.
         """
 
+        # Get error for each link
+        q1e = [qt[n][0] for n in range(len(qt))]
+        q2e = [qt[n][1] for n in range(len(qt))]
         # Get limits of qt plot
-        self.qt.set_xlim((min(ts), max(ts)))
-        qtmin = min(min([qt[i][0] for i in range(len(qt))]), min([qt[i][1] for i in range(len(qt))]))
-        qtmax = max(max([qt[i][0] for i in range(len(qt))]), max([qt[i][1] for i in range(len(qt))]))
+        self.qt.set_xlim((binsrch(ts).__min__(), binsrch(ts).__max__()))
+        qtmin = min(binsrch(q1e).__min__(), binsrch(q2e).__min__())
+        qtmax = max(binsrch(q1e).__max__(), binsrch(q2e).__max__())
         self.qt.set_ylim((qtmin, qtmax))
         # Text for formulas in qt plot
         if ctrl_type == 'PD':
@@ -179,8 +211,6 @@ class realtime:
         q1_error, = self.qt.plot([], [], 'r', lw=2, label="$ \\tilde{q_{1}} $")
         q2_error, = self.qt.plot([], [], 'b', lw=2, label="$ \\tilde{q_{2}} $")
         self.qt.legend(loc='upper right')
-        q1e = [qt[n][0] for n in range(len(qt))]
-        q2e = [qt[n][1] for n in range(len(qt))]
 
         def animate(i):
             """
@@ -643,7 +673,7 @@ if __name__ == '__main__':
     tf = 1.0
 
     sim = pelican_robot(dp, kp, kv, control_law='PD-GC')
-    qsf, qpsf = sim.RK4(ti, qi, vi, tf)
+    qsf, qpsf = sim.RK4(ti, qi, vi, tf, display=True)
 
     print('==================================================================')
     print('Angles for desired position: [{}, {}]'.format(dp[0], dp[1]))
