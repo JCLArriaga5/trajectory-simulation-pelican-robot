@@ -16,20 +16,50 @@ from tkinter import PhotoImage
 from matplotlib.animation import FuncAnimation
 
 class binsrch:
+    """
+    Binary search
+
+    ...
+
+    Attribute
+    ---------
+    list : Values contained in a list
+
+    Methods
+    -------
+    def __max__():
+        Maximum list value by binary search
+
+    def __min__():
+        Minimum list value by binary search
+    """
+
     def __init__(self, list):
+        """
+        Constructor
+        """
         self.lst = list
         self.n = len(list) // 2
 
     def __max__(self):
+        """
+        Maximum list value by binary search
+        """
         return max(binsrch.max_value(self.lst[:self.n + 1]),
                    binsrch.max_value(self.lst[-(self.n + 1):]))
 
     def __min__(self):
+        """
+        Minimum list value by binary search
+        """
         return min(binsrch.min_value(self.lst[:self.n + 1]),
                    binsrch.min_value(self.lst[-(self.n + 1):]))
 
     @staticmethod
     def max_value(list):
+        """
+        Recursive maximum value
+        """
         if len(list) == 1:
             return list[0]
         else:
@@ -38,6 +68,9 @@ class binsrch:
 
     @staticmethod
     def min_value(list):
+        """
+        Recursive minimum value
+        """
         if len(list) == 1:
             return list[0]
         else:
@@ -673,7 +706,7 @@ if __name__ == '__main__':
     tf = 1.0
 
     sim = pelican_robot(dp, kp, kv, control_law='PD-GC')
-    qsf, qpsf = sim.RK4(ti, qi, vi, tf, display=True)
+    qsf, qpsf = sim.RK4(ti, qi, vi, tf)
 
     print('==================================================================')
     print('Angles for desired position: [{}, {}]'.format(dp[0], dp[1]))
