@@ -453,6 +453,13 @@ class pelican_robot:
         vi : Values of final velocities [qp1, qp2] to desired position
         """
 
+        if h > 0.01:
+            raise ValueError('{} is greater than 0.01, set h <= 0.01'.format(h))
+
+        print("""
+              RK4 method will do {} iterations to the desired point {}
+              """.format(len(np.arange(ti, tf, h)), self.dp))
+
         for _ in np.arange(ti, tf, h):
             qt = self.controller(qi, vi)
             self.qerr.append(qt)
