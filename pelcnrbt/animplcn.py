@@ -130,7 +130,7 @@ class get_trj_vals:
                 tf = 0.6
                 # print('Flag 2')
 
-            anim_vals = pelican_robot(self.pts[pnt], kp, kv)
+            anim_vals = pelican_robot(self.pts[pnt], kp, kv, control_law='PD-GC')
             q_t, v_t = anim_vals.RK4(ti, qi, vi, tf)
 
             if pnt == 0 or len(self.pts) == 1:
@@ -194,9 +194,10 @@ class trjanim(get_trj_vals):
         fig, ax = plt.subplots()
         fig.canvas.set_window_title('Pelican Robot: Trajectory Animation')
         # Change icon window
-        plc_anim_w = plt.get_current_fig_manager()
-        img = PhotoImage(file='images/pelican-robot-icon.png')
-        plc_anim_w.window.tk.call('wm', 'iconphoto', plc_anim_w.window._w, img)
+        if os.path.exists('../images'):
+            plc_anim_w = plt.get_current_fig_manager()
+            img = PhotoImage(file='images/pelican-robot-icon.png')
+            plc_anim_w.window.tk.call('wm', 'iconphoto', plc_anim_w.window._w, img)
 
         # Pelican Robot Workspace in meteters
         ax.set_xlim((-0.6, 0.6))
@@ -208,9 +209,9 @@ class trjanim(get_trj_vals):
         link_1, = ax.plot([], [], 'r', lw=2)
         link_2, = ax.plot([], [], 'b', lw=2)
 
-        print('Wait while the animation is generated')
-
         qs, ip = self.get_q_vals()
+
+        print('Wait while the animation is generated for {} points'.format(len(qs)))
 
         def init():
             """
@@ -257,8 +258,8 @@ def anim_circle_trj(r, cx, cy, stp, ip):
     ip : Initial position
     """
 
-    c = np.linspace(0, 2 * np.pi, stp)
-    points = [[r * np.cos(c[i]) + cx, r * np.sin(c[i]) + cy] for i in range(len(c))]
+    points = [[r * np.cos(theta) + cx, r * np.sin(theta) + cy]
+               for theta in np.linspace(0, 2 * np.pi, stp)]
 
     trjanim(ip, points)._animation_()
 
