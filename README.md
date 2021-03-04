@@ -71,8 +71,17 @@ sim.plot_trajectory(50)
 ```
 <p align="center"><img src="images/trajectory_graph.png"></p>
 
+### Generate trajectory GIF
+You can generate GIF of `sim.plot_trajectory` with following function once the simulation values have been generated.
+```python
+sim.get_traj_gif('trajectory__.gif')
+```
+You need put file name with extension (.gif) to your GIF that you want get, Then will autosave in directory `gifs` inside repository path.
+
 ### Simulation Animated
-If you want to see the animation of the trajectory to the desired position and the behavior of the error during the set time, use the parameter `display=True` in the RK4 function, as show:
+If you want to see the animation of the trajectory to the desired position and the behavior of the error during the set time, use the parameter `display=True` in the RK4 function, as shown:
+
+**Note:** Once the simulation values have been generated, inside `sim.RK4` code when the number of total iterations done, there will get values and show animation.
 ```python
 sim = pelican_robot(pd, kp, kv, control_law='PD-GC')
 qsf, qpsf = sim.RK4(ti, qi, vi, tf, display=True)
