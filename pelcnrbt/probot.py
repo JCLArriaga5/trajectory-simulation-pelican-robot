@@ -13,7 +13,9 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 from tkinter import PhotoImage
+from PIL import Image
 from matplotlib.animation import FuncAnimation
+import gif
 
 class binsrch:
     """
@@ -685,6 +687,33 @@ class pelican_robot:
                   'b', label='$L_2$')
         ax.legend()
 
+    def get_traj_gif(self, file_name, duration, show=False):
+        if not os.path.exists('../gifs'):
+            os.makedirs('../gifs')
+
+        @gif.frame
+        def plot(n):
+            fig, ax = plt.subplots()
+            # Work space of robot
+            ax.set_xlim(-0.6, 0.6)
+            ax.set_ylim(-0.6, 0.6)
+
+            plt.title('Pelican Robot: Desired Position trajectory with Position Control')
+            plot_link([0.0, 0.0], direct_k(self.qs[n][0], self.qs[n][1])[0], 'r', label='$L_1$')
+            plot_link(direct_k(self.qs[n][0], self.qs[n][1])[0],
+                      direct_k(self.qs[n][0], self.qs[n][1])[1], 'b', label='$L_2$')
+            ax.scatter(self.dp[0], self.dp[1], facecolor='k')
+            ax.grid('on')
+            ax.legend()
+            ax.set_aspect('equal')
+
+        frames = []
+        print('Please wait while the gif is generated')
+        print(' L  The gif will be saved in directory gifs inside repository')
+        for n in np.arange(0, len(self.qs), len(self.qs) // 100):
+            frames.append(plot(n))
+        gif.save(frames, '../gifs/' + file_name, duration=duration, unit='s', between='startend')
+
     def values(self):
         """
         Function to return values of each iteration in RK4
@@ -726,3 +755,5 @@ if __name__ == '__main__':
     print('Close window of trajectory plot...')
     sim.plot_trajectory(50)
     plt.show()
+
+    sim.get_traj_gif('trajectory__.gif', 1.5)
