@@ -317,6 +317,9 @@ class pelican_robot:
     plot_trajectory(stp):
         Function to graph trajectory with each angle iteration to desired position.
 
+    get_traj_gif(fname, duration):
+        Function to save GIF of trajectory to desired point
+
     values():
         Function to return values of each iteration in RK4.
     """
@@ -687,7 +690,23 @@ class pelican_robot:
                   'b', label='$L_2$')
         ax.legend()
 
-    def get_traj_gif(self, file_name, duration, show=False):
+    def get_traj_gif(self, fname, duration=1.5):
+        """
+        Generate a GIF of trajectory to desired point, the numbers of frames is
+        reduced because (frames = number of iterations) and sometimes the number
+        of  iterations is high.
+
+        Parameters
+        ----------
+        fname (str):
+            The file name of GIF you want save with extension (.gif).
+        duration (int/float):
+            Time duration in seconds
+
+        """
+        if type(fname) != str:
+            raise ValueError('The name should will be (str) with extension (.gif).')
+
         if not os.path.exists('../gifs'):
             os.makedirs('../gifs')
 
@@ -712,7 +731,7 @@ class pelican_robot:
         print(' L  The gif will be saved in directory gifs inside repository')
         for n in np.arange(0, len(self.qs), len(self.qs) // 100):
             frames.append(plot(n))
-        gif.save(frames, '../gifs/' + file_name, duration=duration, unit='s', between='startend')
+        gif.save(frames, '../gifs/' + fname, duration=duration, unit='s', between='startend')
 
     def values(self):
         """
@@ -756,4 +775,4 @@ if __name__ == '__main__':
     sim.plot_trajectory(50)
     plt.show()
 
-    sim.get_traj_gif('trajectory__.gif', 1.5)
+    sim.get_traj_gif('trajectory__.gif')
