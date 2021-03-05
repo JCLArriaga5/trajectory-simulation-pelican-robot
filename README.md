@@ -10,6 +10,10 @@ Trajectory simulation of the Pelican Prototype Robot of the [CICESE Research Cen
 ```sh
 $ git clone https://github.com/JCLArriaga5/trajectory-simulation-pelican-robot.git
 ```
+Enter the path where the repository was cloned and install the dependencies with the following command:
+```sh
+$ pip install -r requirements.txt
+```
 ## Simulation
 You can review the simulation carried out in a Colab notebook using the functions created in [probot](../master/pelcnrbt/probot.py), by clicking here: [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1-ScjnXOpJHxfpcLepvf9Jc5cyq6QAOzP?usp=sharing)
 
