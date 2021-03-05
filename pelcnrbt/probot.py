@@ -180,7 +180,7 @@ class realtime:
         # Change window title
         self.fig.canvas.set_window_title('Pelican Robot: Simulation')
         # Change icon window
-        if os.path.exists('../images'):
+        if os.path.exists('../pelcnrbt/images'):
             plc_anim_w = plt.get_current_fig_manager()
             img = PhotoImage(file='images/pelican-robot-icon.png')
             plc_anim_w.window.tk.call('wm', 'iconphoto', plc_anim_w.window._w, img)
@@ -599,7 +599,7 @@ class pelican_robot:
                 solution for the desired position to be able to graph""")
 
         # Change icon window
-        if os.path.exists('../images'):
+        if os.path.exists('../pelcnrbt/images'):
             plc_anim_w = plt.get_current_fig_manager()
             img = PhotoImage(file='images/pelican-robot-icon.png')
             plc_anim_w.window.tk.call('wm', 'iconphoto', plc_anim_w.window._w, img)
@@ -625,7 +625,7 @@ class pelican_robot:
                 solution for the desired position to be able to graph""")
 
         # Change icon window
-        if os.path.exists('../images'):
+        if os.path.exists('../pelcnrbt/images'):
             plc_anim_w = plt.get_current_fig_manager()
             img = PhotoImage(file='images/pelican-robot-icon.png')
             plc_anim_w.window.tk.call('wm', 'iconphoto', plc_anim_w.window._w, img)
@@ -659,7 +659,7 @@ class pelican_robot:
 
         fig, ax = plt.subplots()
         # Change icon window
-        if os.path.exists('../images'):
+        if os.path.exists('../pelcnrbt/images'):
             plc_anim_w = plt.get_current_fig_manager()
             img = PhotoImage(file='images/pelican-robot-icon.png')
             plc_anim_w.window.tk.call('wm', 'iconphoto', plc_anim_w.window._w, img)
@@ -707,8 +707,8 @@ class pelican_robot:
         if type(fname) != str:
             raise ValueError('The name should will be (str) with extension (.gif).')
 
-        if not os.path.exists('../gifs'):
-            os.makedirs('../gifs')
+        if not os.path.exists('../pelcnrbt/gifs'):
+            os.makedirs('../pelcnrbt/gifs')
 
         @gif.frame
         def plot(n):
@@ -731,7 +731,7 @@ class pelican_robot:
         print(' L  The gif will be saved in directory gifs inside repository')
         for n in np.arange(0, len(self.qs), len(self.qs) // 100):
             frames.append(plot(n))
-        gif.save(frames, '../gifs/' + fname, duration=duration, unit='s', between='startend')
+        gif.save(frames, '../pelcnrbt/gifs/' + fname, duration=duration, unit='s', between='startend')
 
     def values(self):
         """
