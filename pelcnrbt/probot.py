@@ -774,5 +774,3 @@ if __name__ == '__main__':
     print('Close window of trajectory plot...')
     sim.plot_trajectory(50)
     plt.show()
-
-    sim.get_traj_gif('trajectory__.gif')
