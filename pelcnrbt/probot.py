@@ -675,6 +675,7 @@ class pelican_robot:
             plot_link(direct_k(self.qs[n][0], self.qs[n][1])[0],
                       direct_k(self.qs[n][0], self.qs[n][1])[1], '#83EB94')
             ax.grid('on')
+            ax.set_aspect('equal', 'box')
 
         # Draw point in desired position
         ax.scatter(self.dp[0], self.dp[1], marker='X', s=100, facecolor='#65009C')
@@ -690,7 +691,7 @@ class pelican_robot:
                   'b', label='$L_2$')
         ax.legend()
 
-    def get_traj_gif(self, fname, duration=1.5):
+    def get_traj_gif(self, fname, duration=0.5):
         """
         Generate a GIF of trajectory to desired point, the numbers of frames is
         reduced because (frames = number of iterations) and sometimes the number
@@ -724,12 +725,12 @@ class pelican_robot:
             ax.scatter(self.dp[0], self.dp[1], facecolor='k')
             ax.grid('on')
             ax.legend()
-            ax.set_aspect('equal')
+            ax.set_aspect('equal', 'box')
 
         frames = []
         print('Please wait while the gif is generated')
         print(' L  The gif will be saved in directory gifs inside repository')
-        for n in np.arange(0, len(self.qs), len(self.qs) // 100):
+        for n in np.arange(0, len(self.qs), 2):
             frames.append(plot(n))
         gif.save(frames, '../pelcnrbt/gifs/' + fname, duration=duration, unit='s', between='startend')
 
