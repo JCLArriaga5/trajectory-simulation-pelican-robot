@@ -15,6 +15,7 @@ import matplotlib.pyplot as plt
 from tkinter import PhotoImage
 from PIL import Image
 from matplotlib.animation import FuncAnimation
+import matplotlib.animation as animation
 
 class binsrch:
     """
@@ -146,9 +147,7 @@ def inverse_k(Px, Py):
 
     K = ((Px ** 2 + Py ** 2 - l1 ** 2 - l2 ** 2) / (2 * l1 * l2))
     q2 = np.arctan2(np.sqrt(1 - (K ** 2)), K)
-
-    __tmp = np.arctan2((l2 * np.sin(q2)), (l1 + l2 * np.cos(q2)))
-    q1 = np.arctan2(Px, - Py) - __tmp
+    q1 = np.arctan2(Px, - Py) - np.arctan2((l2 * np.sin(q2)), (l1 + l2 * np.cos(q2)))
 
     return [q1, q2]
 
@@ -380,7 +379,7 @@ class pelican_robot:
         # the area of the circle formed by the radius that forms approximately
         # the sum of its links.
         c = np.linspace(0, 2 * np.pi)
-        r_space = [[(2 * 0.25) * np.cos(c[i]), (2 * 0.25) * np.sin(c[i])]
+        r_space = [[(2 * 0.26) * np.cos(c[i]), (2 * 0.26) * np.sin(c[i])]
                     for i in range(len(c))]
         x_min = min([r_space[x][0] for x in range(len(r_space))])
         y_min = min([r_space[y][1] for y in range(len(r_space))])
@@ -722,7 +721,7 @@ if __name__ == '__main__':
     tf = 1.0
 
     sim = pelican_robot(dp, kp, kv, control_law='PD-GC')
-    qsf, qpsf = sim.RK4(ti, qi, vi, tf, display=True)
+    qsf, qpsf = sim.RK4(ti, qi, vi, tf)
 
     print('==================================================================')
     print('Angles for desired position: [{}, {}]'.format(dp[0], dp[1]))
