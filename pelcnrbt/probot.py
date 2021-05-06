@@ -15,7 +15,6 @@ import matplotlib.pyplot as plt
 from tkinter import PhotoImage
 from PIL import Image
 from matplotlib.animation import FuncAnimation
-import gif
 
 class binsrch:
     """
@@ -690,49 +689,6 @@ class pelican_robot:
                   direct_k(self.qs[len(self.qs) - 1][0], self.qs[len(self.qs) - 1][1])[1],
                   'b', label='$L_2$')
         ax.legend()
-
-    def get_traj_gif(self, fname, duration=0.5):
-        """
-        Generate a GIF of trajectory to desired point, the numbers of frames is
-        reduced because (frames = number of iterations) and sometimes the number
-        of  iterations is high.
-
-        Parameters
-        ----------
-        fname (str):
-            The file name of GIF you want save with extension (.gif).
-        duration (int/float):
-            Time duration in seconds
-
-        """
-        if type(fname) != str:
-            raise ValueError('The name should will be (str) with extension (.gif).')
-
-        if not os.path.exists('../pelcnrbt/gifs'):
-            os.makedirs('../pelcnrbt/gifs')
-
-        @gif.frame
-        def plot(n):
-            fig, ax = plt.subplots()
-            # Work space of robot
-            ax.set_xlim(-0.6, 0.6)
-            ax.set_ylim(-0.6, 0.6)
-
-            plt.title('Pelican Robot: Desired Position trajectory with Position Control')
-            plot_link([0.0, 0.0], direct_k(self.qs[n][0], self.qs[n][1])[0], 'r', label='$L_1$')
-            plot_link(direct_k(self.qs[n][0], self.qs[n][1])[0],
-                      direct_k(self.qs[n][0], self.qs[n][1])[1], 'b', label='$L_2$')
-            ax.scatter(self.dp[0], self.dp[1], facecolor='k')
-            ax.grid('on')
-            ax.legend()
-            ax.set_aspect('equal', 'box')
-
-        frames = []
-        print('Please wait while the gif is generated')
-        print(' L  The gif will be saved in directory gifs inside repository')
-        for n in np.arange(0, len(self.qs), 2):
-            frames.append(plot(n))
-        gif.save(frames, '../pelcnrbt/gifs/' + fname, duration=duration, unit='s', between='startend')
 
     def values(self):
         """
