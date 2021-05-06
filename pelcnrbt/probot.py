@@ -187,8 +187,12 @@ class realtime:
         # Limits and appearance of the pelican robot animation
         self.robot.set_xlim((-0.6, 0.6))
         self.robot.set_ylim((-0.6, 0.6))
+        self.robot.set_xticks(np.arange(-0.6, 0.6, 0.1))
+        self.robot.set_yticks(np.arange(-0.6, 0.6, 0.1))
+        self.robot.grid(which='both')
+        self.robot.set_xticklabels([])
+        self.robot.set_yticklabels([])
         self.robot.set_aspect('equal', adjustable='box')
-        self.robot.grid('on')
 
         # Some elements for the animation of the error qt
         self.qt.set_title("Graph of how the error ($ \\tilde{q} $) was reduced.")
@@ -718,7 +722,7 @@ if __name__ == '__main__':
     tf = 1.0
 
     sim = pelican_robot(dp, kp, kv, control_law='PD-GC')
-    qsf, qpsf = sim.RK4(ti, qi, vi, tf)
+    qsf, qpsf = sim.RK4(ti, qi, vi, tf, display=True)
 
     print('==================================================================')
     print('Angles for desired position: [{}, {}]'.format(dp[0], dp[1]))
