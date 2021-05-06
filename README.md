@@ -75,13 +75,6 @@ sim.plot_trajectory(50)
 ```
 <p align="center"><img src="images/trajectory_graph.png"></p>
 
-### Generate trajectory GIF
-You can generate GIF of `sim.plot_trajectory` with following function once the simulation values have been generated.
-```python
-sim.get_traj_gif('trajectory__.gif')
-```
-You need put file name with extension (.gif) to your GIF that you want get, Then will autosave in directory `gifs` inside repository path.
-
 ### Simulation Animated
 If you want to see the animation of the trajectory to the desired position and the behavior of the error during the set time, use the parameter `display=True` in the RK4 function, as shown:
 
