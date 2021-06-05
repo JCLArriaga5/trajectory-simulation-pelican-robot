@@ -145,7 +145,7 @@ def inverse_k(Px, Py):
 
     l1 = l2 = 0.26 # In meters
 
-    K = ((Px ** 2 + Py ** 2 - l1 ** 2 - l2 ** 2) / (2 * l1 * l2))
+    K = (Px ** 2 + Py ** 2 - l1 ** 2 - l2 ** 2) / (2 * l1 * l2)
     q2 = np.arctan2(np.sqrt(1 - (K ** 2)), K)
     q1 = np.arctan2(Px, - Py) - np.arctan2((l2 * np.sin(q2)), (l1 + l2 * np.cos(q2)))
 
@@ -176,7 +176,7 @@ class realtime:
         # Number of subplots to animate
         self.fig, (self.robot, self.qt) = plt.subplots(2, 1)
         # Change window title
-        self.fig.canvas.set_window_title('Pelican Robot: Simulation')
+        # self.fig.canvas.set_window_title('Pelican Robot: Simulation')
         # Change icon window
         if os.path.exists('../pelcnrbt/images'):
             plc_anim_w = plt.get_current_fig_manager()
@@ -411,11 +411,7 @@ class pelican_robot:
                 raise ValueError('Controller has no attribute {}'.format(key))
             elif kwarg[key] not in {'PD', 'PD-GC', 'PD-dGC'}:
                 raise ValueError('{} has no attribute {}'.format(key, kwarg[key]))
-            elif kwarg[key] == 'PD':
-                return kwarg[key]
-            elif kwarg[key] == 'PD-GC':
-                return kwarg[key]
-            elif kwarg[key] == 'PD-dGC':
+            else:
                 return kwarg[key]
 
     @staticmethod
