@@ -17,6 +17,16 @@ from PIL import Image
 from matplotlib.animation import FuncAnimation
 import matplotlib.animation as animation
 
+# Pelican Robot Parameters
+L1 = L2 = 0.26 # Meters
+I1 = 0.1213 # Kg m²
+I2 = 0.01616 # Kg m²
+LC1 = 0.0983 # meters
+LC2 = 0.0229 # meters
+M1 = 6.5225 # Kg
+M2 = 2.0458 # Kg
+GR = 9.80665 # m / s²
+
 class binsrch:
     """
     Binary search
@@ -120,22 +130,21 @@ def direct_k(q1, q2):
     fnl_elmnt : x-y-cordinates of final element of robot
     """
 
-    l1 = l2 = 0.26 # In meters
-    link_1 = [l1 * np.sin(q1), - l1 * np.cos(q1)]
-    link_2 = [l2 * np.sin(q1 + q2), - l2 * np.cos(q1 + q2)]
+    link_1 = [L1 * np.sin(q1), - L1 * np.cos(q1)]
+    link_2 = [L2 * np.sin(q1 + q2), - L2 * np.cos(q1 + q2)]
     fnl_elmnt = [link_1[0] + link_2[0], link_1[1] + link_2[1]]
 
     return link_1, link_2, fnl_elmnt
 
-def inverse_k(Px, Py):
+def inverse_k(px, py):
     """
     Inverse kinematic of pelican robot:
         Obtain angles for each link to desired position
 
     Parameters
     ----------
-    Px : Value of x-position desired
-    Py : Value of y-position desired
+    px : Value of x-position desired
+    py : Value of y-position desired
 
     Returns
     -------
@@ -143,11 +152,9 @@ def inverse_k(Px, Py):
     q2 : Angle in radians of link 2 for the desired position
     """
 
-    l1 = l2 = 0.26 # In meters
-
-    K = (Px ** 2 + Py ** 2 - l1 ** 2 - l2 ** 2) / (2 * l1 * l2)
+    K = (px ** 2 + py ** 2 - L1 ** 2 - L2 ** 2) / (2 * L1 * L2)
     q2 = np.arctan2(np.sqrt(1 - (K ** 2)), K)
-    q1 = np.arctan2(Px, - Py) - np.arctan2((l2 * np.sin(q2)), (l1 + l2 * np.cos(q2)))
+    q1 = np.arctan2(px, - py) - np.arctan2((L2 * np.sin(q2)), (L1 + L2 * np.cos(q2)))
 
     return [q1, q2]
 
@@ -253,7 +260,7 @@ class realtime:
             """
             Generate animation
             """
-
+            
             link_1.set_data([0.0, direct_k(qs[i][0], qs[i][1])[0][0]],
                             [0.0, direct_k(qs[i][0], qs[i][1])[0][1]])
 
@@ -379,7 +386,7 @@ class pelican_robot:
         # the area of the circle formed by the radius that forms approximately
         # the sum of its links.
         c = np.linspace(0, 2 * np.pi)
-        r_space = [[(2 * 0.26) * np.cos(c[i]), (2 * 0.26) * np.sin(c[i])]
+        r_space = [[(2 * 0.26) * np.cos(c[i]), (2 * L1) * np.sin(c[i])]
                     for i in range(len(c))]
         x_min = min([r_space[x][0] for x in range(len(r_space))])
         y_min = min([r_space[y][1] for y in range(len(r_space))])
@@ -423,17 +430,9 @@ class pelican_robot:
         equation if necessary.
         """
 
-        # Required robot parameters
-        l1 = l2 = 0.26 # meters
-        lc1 = 0.0983 # meters
-        lc2 = 0.0229 # meters
-        m1 = 6.5225 # Kg
-        m2 = 2.0458 # Kg
-        g = 9.81 # m / s²
-
-        G11 = (m1 * lc1 + m2 * l1) * g * np.sin(q1) + m2 * lc2 * g * np.sin(q1 + q2)
-        G12 = m2 * lc2 * g * np.sin(q1 + q2)
-        return [G11, G12]
+        g_11 = (M1 * LC1 + M2 * L1) * GR * np.sin(q1) + M2 * LC2 * GR * np.sin(q1 + q2)
+        g_21 = M2 * LC2 * GR * np.sin(q1 + q2)
+        return [g_11, g_21]
 
     def RK4(self, ti, qi, vi, tf, h=0.001, display=False):
         """
@@ -543,36 +542,26 @@ class pelican_robot:
         qpp : Acelerations of each link [qpp1, qpp2]
         """
 
-        # Parameters of the robot
-        l1 = l2 = 0.26 # meters
-        lc1 = 0.0983 # meters
-        lc2 = 0.0229 # meters
-        m1 = 6.5225 # Kg
-        m2 = 2.0458 # Kg
-        I1 = 0.1213 # Kg m²
-        I2 = 0.01616 # Kg m²
-        g = 9.81 # m / s²
-
         # Inertial Matrix
-        M11 = m1 * lc1 ** 2 + m2 * (l1 ** 2 + lc2 ** 2 + 2 * l1 * lc2 * np.cos(q[1])) + I1 + I2
-        M12 = m2 * (lc2 ** 2 + l1 * lc2 * np.cos(q[1])) + I2
-        M21 = m2 * (lc2 ** 2 + l1 * lc2 * np.cos(q[1])) + I2
-        M22 = m2 * lc2 ** 2 + I2
+        m_11 = M1 * LC1 ** 2 + M2 * (L1 ** 2 + LC2 ** 2 + 2 * L1 * LC2 * np.cos(q[1])) + I1 + I2
+        m_12 = M2 * (LC2 ** 2 + L1 * LC2 * np.cos(q[1])) + I2
+        m_21 = M2 * (LC2 ** 2 + L1 * LC2 * np.cos(q[1])) + I2
+        m_22 = M2 * LC2 ** 2 + I2
 
-        M = [
-            [M11, M12],
-            [M21, M22]
+        m = [
+            [m_11, m_12],
+            [m_21, m_22]
         ]
 
         # Vector of centrifugal and Coriolis forces
-        C11 = - ((m2 * l1 * lc2 * np.sin(q[1])) * v[1])
-        C12 = - ((m2 * l1 * lc2 * np.sin(q[1])) * (v[0] + v[1]))
-        C21 =   ((m2 * l1 * lc2 * np.sin(q[1])) * v[1])
-        C22 = 0.0
+        c_11 = - ((M2 * L1 * LC2 * np.sin(q[1])) * v[1])
+        c_12 = - ((M2 * L1 * LC2 * np.sin(q[1])) * (v[0] + v[1]))
+        c_21 =   ((M2 * L1 * LC2 * np.sin(q[1])) * v[1])
+        c_22 = 0.0
 
-        C = [
-            [C11, C12],
-            [C21, C22]
+        c = [
+            [c_11, c_12],
+            [c_21, c_22]
         ]
 
         if len(self.tau) == 0:
@@ -581,9 +570,9 @@ class pelican_robot:
         else:
             __tau = self.tau
 
-        Minv = np.linalg.inv(M)
-        Cqp = np.dot(C, v)
-        qpp = np.matmul(Minv, (__tau - Cqp - pelican_robot.G(q[0], q[1])))
+        minv = np.linalg.inv(m)
+        cqp = np.dot(c, v)
+        qpp = np.matmul(minv, (__tau - cqp - pelican_robot.G(q[0], q[1])))
 
         return qpp
 
@@ -717,7 +706,7 @@ if __name__ == '__main__':
     tf = 1.0
 
     sim = pelican_robot(dp, kp, kv, control_law='PD-GC')
-    qsf, qpsf = sim.RK4(ti, qi, vi, tf)
+    qsf, qpsf = sim.RK4(ti, qi, vi, tf, display=True)
 
     print('==================================================================')
     print('Angles for desired position: [{}, {}]'.format(dp[0], dp[1]))
