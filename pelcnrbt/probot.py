@@ -53,14 +53,14 @@ class binsrch:
         self.lst = list
         self.n = len(list) // 2
 
-    def __max__(self):
+    def max(self):
         """
         Maximum list value by binary search
         """
         return max(binsrch.max_value(self.lst[:self.n + 1]),
                    binsrch.max_value(self.lst[-(self.n + 1):]))
 
-    def __min__(self):
+    def min(self):
         """
         Minimum list value by binary search
         """
@@ -228,9 +228,9 @@ class realtime:
         q1e = [qt[n][0] for n in range(len(qt))]
         q2e = [qt[n][1] for n in range(len(qt))]
         # Get limits of qt plot
-        self.qt.set_xlim((binsrch(ts).__min__(), binsrch(ts).__max__()))
-        qtmin = min(binsrch(q1e).__min__(), binsrch(q2e).__min__())
-        qtmax = max(binsrch(q1e).__max__(), binsrch(q2e).__max__())
+        self.qt.set_xlim((binsrch(ts).min(), binsrch(ts).max()))
+        qtmin = min(binsrch(q1e).min(), binsrch(q2e).min())
+        qtmax = max(binsrch(q1e).max(), binsrch(q2e).max())
         self.qt.set_ylim((qtmin, qtmax))
         # Text for formulas in qt plot
         if ctrl_type == 'PD':
