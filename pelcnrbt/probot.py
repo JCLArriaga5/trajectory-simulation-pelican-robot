@@ -320,7 +320,7 @@ class pelican_robot:
         - Controller that returns the error of each angle of the desired position.
         - Generate the controller tau with the set gains to use within the class.
 
-    BCG(q, v):
+    MCG(q, v):
         Canonical form of the robot's Lagrange equation of motion, the integrated
         controller with gravitational compensation. Return the accelerations of
         each link.
