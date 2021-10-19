@@ -39,10 +39,10 @@ class binsrch:
 
     Methods
     -------
-    def __max__():
+    def max():
         Maximum list value by binary search
 
-    def __min__():
+    def min():
         Minimum list value by binary search
     """
 
