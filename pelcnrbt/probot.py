@@ -222,6 +222,8 @@ class realtime:
              should reach in the animation.
         """
 
+        print('Realtime animation for desired position : [{}, {}], Start!'.format(dp[0], dp[1]))
+
         # Get error for each link
         q1e = [qt[n][0] for n in range(len(qt))]
         q2e = [qt[n][1] for n in range(len(qt))]
@@ -260,19 +262,27 @@ class realtime:
             """
             Generate animation
             """
-            
-            link_1.set_data([0.0, direct_k(qs[i][0], qs[i][1])[0][0]],
-                            [0.0, direct_k(qs[i][0], qs[i][1])[0][1]])
 
-            link_2.set_data([direct_k(qs[i][0], qs[i][1])[0][0],
-                             direct_k(qs[i][0], qs[i][1])[2][0]],
-                            [direct_k(qs[i][0], qs[i][1])[0][1],
-                             direct_k(qs[i][0], qs[i][1])[2][1]])
+            if i == len(qs) - 1:
+                print('Realtime animation donde!, Closed window.')
+                plt.close('all')
 
-            q1_error.set_data(ts[:i - len(ts)], q1e[:i - len(q1e)])
-            q2_error.set_data(ts[:i - len(ts)], q2e[:i - len(q2e)])
+                return link_1, link_2, q1_error, q2_error,
 
-            return link_1, link_2, q1_error, q2_error,
+            else:
+                # print(f'frame: {i}') # Debug: May be useful to stop
+                link_1.set_data([0.0, direct_k(qs[i][0], qs[i][1])[0][0]],
+                                [0.0, direct_k(qs[i][0], qs[i][1])[0][1]])
+
+                link_2.set_data([direct_k(qs[i][0], qs[i][1])[0][0],
+                                 direct_k(qs[i][0], qs[i][1])[2][0]],
+                                [direct_k(qs[i][0], qs[i][1])[0][1],
+                                 direct_k(qs[i][0], qs[i][1])[2][1]])
+
+                q1_error.set_data(ts[:i - len(ts)], q1e[:i - len(q1e)])
+                q2_error.set_data(ts[:i - len(ts)], q2e[:i - len(q2e)])
+
+                return link_1, link_2, q1_error, q2_error,
 
         ani = FuncAnimation(self.fig, animate, interval=5, blit=True, frames=len(qs),
                             repeat=False)
