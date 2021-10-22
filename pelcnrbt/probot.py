@@ -321,11 +321,11 @@ class pelican_robot:
 
     Methods
     -------
-    def run(self, ti, qi, vi, tf, display=False):
+    def run(ti, qi, vi, tf, display=False):
         Function to run simulation using runge kutta 4th order method to solve
         the trajectory.
 
-    rk4(ti, ui, vi, tf, display):
+    rk4(ti, ui, vi, tf):
         Runge-Kutta 4th order to solve system ODE's to obtain angles and velocities.
 
     controller(qs, qps):
