@@ -27,6 +27,9 @@ M1 = 6.5225 # Kg
 M2 = 2.0458 # Kg
 GR = 9.80665 # m / s²
 
+# Integration step
+H = 0.001
+
 class binsrch:
     """
     Binary search
@@ -152,8 +155,8 @@ def inverse_k(px, py):
     q2 : Angle in radians of link 2 for the desired position
     """
 
-    K = (px ** 2 + py ** 2 - L1 ** 2 - L2 ** 2) / (2 * L1 * L2)
-    q2 = np.arctan2(np.sqrt(1 - (K ** 2)), K)
+    k = (px ** 2 + py ** 2 - L1 ** 2 - L2 ** 2) / (2 * L1 * L2)
+    q2 = np.arctan2(np.sqrt(1 - (k ** 2)), k)
     q1 = np.arctan2(px, - py) - np.arctan2((L2 * np.sin(q2)), (L1 + L2 * np.cos(q2)))
 
     return [q1, q2]
@@ -444,7 +447,7 @@ class pelican_robot:
         g_21 = M2 * LC2 * GR * np.sin(q1 + q2)
         return [g_11, g_21]
 
-    def RK4(self, ti, qi, vi, tf, h=0.001, display=False):
+    def RK4(self, ti, qi, vi, tf, display=False):
         """
         function to solve by Runge-Kutta 4th Order
 
@@ -465,36 +468,33 @@ class pelican_robot:
         vi : Values of final velocities [qp1, qp2] to desired position
         """
 
-        if h > 0.01:
-            raise ValueError('{} is greater than 0.01, set h <= 0.01'.format(h))
-
         print("""
               RK4 method will do {} iterations to the desired point {}
-              """.format(len(np.arange(ti, tf, h)), self.dp))
+              """.format(len(np.arange(ti, tf, H)), self.dp))
 
-        for _ in np.arange(ti, tf, h):
+        for _ in np.arange(ti, tf, H):
             qt = self.controller(qi, vi)
             self.qerr.append(qt)
 
             k1 = vi
             m1 = self.MCG(qi, vi)
 
-            k2 = vi + np.dot(m1, h / 2)
-            m2 = self.MCG(qi + np.dot(k1, h / 2), vi + np.dot(m1, h / 2))
+            k2 = vi + np.dot(m1, H / 2)
+            m2 = self.MCG(qi + np.dot(k1, H / 2), vi + np.dot(m1, H / 2))
 
-            k3 = vi + np.dot(m2, h / 2)
-            m3 = self.MCG(qi + np.dot(k2, h / 2), vi + np.dot(m2, h / 2))
+            k3 = vi + np.dot(m2, H / 2)
+            m3 = self.MCG(qi + np.dot(k2, H / 2), vi + np.dot(m2, H / 2))
 
-            k4 = vi + np.dot(m3, h)
-            m4 = self.MCG(qi + np.dot(k3, h), vi + np.dot(m3, h))
+            k4 = vi + np.dot(m3, H)
+            m4 = self.MCG(qi + np.dot(k3, H), vi + np.dot(m3, H))
 
-            qi += (h / 6) * (k1 + 2 * (k2 + k3) + k4)
+            qi += (H / 6) * (k1 + 2 * (k2 + k3) + k4)
             self.qs.append([qi[0], qi[1]])
 
-            vi += (h / 6) * (m1 + 2 * (m2 + m3) + m4)
+            vi += (H / 6) * (m1 + 2 * (m2 + m3) + m4)
             self.vs.append([vi[0], vi[1]])
 
-            ti += h
+            ti += H
             self.ts.append(ti)
 
         if display == True:
