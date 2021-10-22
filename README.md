@@ -83,7 +83,7 @@ If you want to see the animation of the trajectory to the desired position and t
 **Note:** Animation is not showing in Google Colab
 ```python
 sim = pelican_robot(pd, kp, kv, control_law='PD-GC')
-qsf, qpsf = run.RK4(ti, qi, vi, tf, display=True)
+qsf, qpsf = sim.run(ti, qi, vi, tf, display=True)
 ```
 
 <p align="center"><img src="images/pelican_simulation.gif"></p>
