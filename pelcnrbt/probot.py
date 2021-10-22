@@ -223,6 +223,11 @@ class realtime:
              iteration until reaching the desired position.
         dp : Desired position in the form [Px, Py] to draw the point the robot
              should reach in the animation.
+        ctrl_type : str
+            PD := Proportional control plus velocity feedback and Proportional
+                  Derivative(PD) control
+            PD-GC := PD control with gravity compensation
+            PD-dGC := PD control with desired gravity compensation
         """
 
         print('Realtime animation for desired position : [{}, {}], Start!'.format(dp[0], dp[1]))
@@ -316,7 +321,11 @@ class pelican_robot:
 
     Methods
     -------
-    RK4(ti, ui, vi, tf, h, display):
+    def run(self, ti, qi, vi, tf, display=False):
+        Function to run simulation using runge kutta 4th order method to solve
+        the trajectory.
+
+    rk4(ti, ui, vi, tf, display):
         Runge-Kutta 4th order to solve system ODE's to obtain angles and velocities.
 
     controller(qs, qps):
@@ -344,6 +353,9 @@ class pelican_robot:
 
     values():
         Function to return values of each iteration in RK4.
+
+    empty_values():
+        Funtion to set empty values.
     """
 
     def __init__(self, dp, kp, kv, **kwarg):
@@ -382,11 +394,7 @@ class pelican_robot:
             raise ValueError(""" Inner lists should only contain 2 values like:
                 kv = [[gain_value, 0.0], [0.0, gain_value]] """)
         self.ctrl_type = pelican_robot.chk_kwarg(kwarg)
-        self.ts = []
-        self.qs = []
-        self.vs = []
-        self.qerr = []
-        self.tau = [0.0, 0.0]
+        self.empty_values()
 
     @staticmethod
     def pts_in_range(point):
@@ -447,9 +455,10 @@ class pelican_robot:
         g_21 = M2 * LC2 * GR * np.sin(q1 + q2)
         return [g_11, g_21]
 
-    def RK4(self, ti, qi, vi, tf, display=False):
+    def run(self, ti, qi, vi, tf, display=False):
         """
-        function to solve by Runge-Kutta 4th Order
+        Function to run simulation using runge kutta 4th order method to solve
+        the trajectory.
 
         Parameters
         ----------
@@ -457,10 +466,35 @@ class pelican_robot:
         qi : Value of the initial angles [q1, q2]
         vi : Value of the initial velocities [qp1, qp2]
         tf : time(s) that you want to evaluate in the diff system
-        h : Integration step
         display : bool
             If it is True, it shows in real time how the angles of each link
             changed and the error reduction to the desired point.
+
+        Returns
+        -------
+        qf : Values of final angles [q1, q2] to desired position
+        vf : Values of final velocities [qp1, qp2] to desired position
+        """
+
+        self.empty_values()
+
+        qf, vf = self.rk4(ti, qi, vi, tf)
+
+        if display == True:
+            realtime().show(self.ts, self.qs, self.qerr, self.dp, self.ctrl_type)
+
+        return qf, vf
+
+    def rk4(self, ti, qi, vi, tf):
+        """
+        Runge-Kutta 4th Order method.
+
+        Parameters
+        ----------
+        ti : Value of the initial t
+        qi : Value of the initial angles [q1, q2]
+        vi : Value of the initial velocities [qp1, qp2]
+        tf : time(s) that you want to evaluate in the diff system
 
         Returns
         -------
@@ -496,9 +530,6 @@ class pelican_robot:
 
             ti += H
             self.ts.append(ti)
-
-        if display == True:
-            realtime().show(self.ts, self.qs, self.qerr, self.dp, self.ctrl_type)
 
         return qi, vi
 
@@ -662,8 +693,13 @@ class pelican_robot:
             plc_anim_w.window.tk.call('wm', 'iconphoto', plc_anim_w.window._w, img)
 
         # Work space of robot
-        ax.set_xlim(-0.6, 0.6)
-        ax.set_ylim(-0.6, 0.6)
+        ax.set_xlim((-0.6, 0.6))
+        ax.set_ylim((-0.6, 0.6))
+        ax.set_xticks(np.arange(-0.6, 0.6, 0.1))
+        ax.set_yticks(np.arange(-0.6, 0.6, 0.1))
+        ax.grid(which='both')
+        ax.set_xticklabels([])
+        ax.set_yticklabels([])
 
         for n in np.arange(0, len(self.qs), len(self.qs) // stp):
             # Draw each number of steps
@@ -672,7 +708,7 @@ class pelican_robot:
             plot_link(direct_k(self.qs[n][0], self.qs[n][1])[0],
                       direct_k(self.qs[n][0], self.qs[n][1])[1], '#83EB94')
             ax.grid('on')
-            ax.set_aspect('equal', 'box')
+            ax.set_aspect('equal', adjustable='box')
 
         # Draw point in desired position
         ax.scatter(self.dp[0], self.dp[1], marker='X', s=100, facecolor='#65009C')
@@ -701,6 +737,17 @@ class pelican_robot:
 
         return self.qs, self.vs, self.ts
 
+    def empty_values(self):
+        """
+        Funtion to set empty values
+        """
+
+        self.ts = []
+        self.qs = []
+        self.vs = []
+        self.qerr = []
+        self.tau = [0.0, 0.0]
+
 if __name__ == '__main__':
     # Desired position
     dp = [0.26, 0.13]
@@ -716,7 +763,7 @@ if __name__ == '__main__':
     tf = 1.0
 
     sim = pelican_robot(dp, kp, kv, control_law='PD-GC')
-    qsf, qpsf = sim.RK4(ti, qi, vi, tf, display=True)
+    qsf, qpsf = sim.run(ti, qi, vi, tf, display=True)
 
     print('==================================================================')
     print('Angles for desired position: [{}, {}]'.format(dp[0], dp[1]))
