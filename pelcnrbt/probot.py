@@ -325,18 +325,6 @@ class pelican_robot:
         Function to run simulation using runge kutta 4th order method to solve
         the trajectory.
 
-    rk4(ti, ui, vi, tf):
-        Runge-Kutta 4th order to solve system ODE's to obtain angles and velocities.
-
-    controller(qs, qps):
-        - Controller that returns the error of each angle of the desired position.
-        - Generate the controller tau with the set gains to use within the class.
-
-    mcg(q, v):
-        Canonical form of the robot's Lagrange equation of motion, the integrated
-        controller with gravitational compensation. Return the accelerations of
-        each link.
-
     plot_velocity_bhvr():
         Function to graph the behavior of the speed of each iteration after RK4
         is calculated first.
@@ -347,9 +335,6 @@ class pelican_robot:
 
     plot_trajectory(stp):
         Function to graph trajectory with each angle iteration to desired position.
-
-    get_traj_gif(fname, duration):
-        Function to save GIF of trajectory to desired point
 
     values():
         Function to return values of each iteration in RK4.
@@ -393,7 +378,7 @@ class pelican_robot:
         else:
             raise ValueError(""" Inner lists should only contain 2 values like:
                 kv = [[gain_value, 0.0], [0.0, gain_value]] """)
-        self.ctrl_type = pelican_robot.chk_kwarg(kwarg)
+        self.ctrl_type = self.__chk_kwarg(kwarg)
         self.empty_values()
 
     @staticmethod
@@ -424,8 +409,7 @@ class pelican_robot:
 
             return False
 
-    @staticmethod
-    def chk_kwarg(kwarg):
+    def __chk_kwarg(self, kwarg):
         """
         Function to check that kwarg is in the correct form and return the type
         of controller to use
