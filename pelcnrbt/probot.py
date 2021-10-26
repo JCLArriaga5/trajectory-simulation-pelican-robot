@@ -482,14 +482,14 @@ class pelican_robot:
               RK4 method will do {} iterations to the desired point {}
               """.format(len(np.arange(ti, tf, H)), self.dp))
 
-        qf, vf = self.rk4(ti, qi, vi, tf)
+        qf, vf = self.__rk4(ti, qi, vi, tf)
 
         if display == True:
             realtime().show(self.ts, self.qs, self.qerr, self.dp, self.ctrl_type)
 
         return qf, vf
 
-    def rk4(self, ti, qi, vi, tf):
+    def __rk4(self, ti, qi, vi, tf):
         """
         Runge-Kutta 4th Order method.
 
@@ -507,20 +507,20 @@ class pelican_robot:
         """
 
         for _ in np.arange(ti, tf, H):
-            qt = self.controller(qi, vi)
+            qt = self.__controller(qi, vi)
             self.qerr.append(qt)
 
             k1 = vi
-            m1 = self.mcg(qi, vi)
+            m1 = self.__mcg(qi, vi)
 
             k2 = vi + np.dot(m1, H / 2)
-            m2 = self.mcg(qi + np.dot(k1, H / 2), vi + np.dot(m1, H / 2))
+            m2 = self.__mcg(qi + np.dot(k1, H / 2), vi + np.dot(m1, H / 2))
 
             k3 = vi + np.dot(m2, H / 2)
-            m3 = self.mcg(qi + np.dot(k2, H / 2), vi + np.dot(m2, H / 2))
+            m3 = self.__mcg(qi + np.dot(k2, H / 2), vi + np.dot(m2, H / 2))
 
             k4 = vi + np.dot(m3, H)
-            m4 = self.mcg(qi + np.dot(k3, H), vi + np.dot(m3, H))
+            m4 = self.__mcg(qi + np.dot(k3, H), vi + np.dot(m3, H))
 
             qi += (H / 6) * (k1 + 2 * (k2 + k3) + k4)
             self.qs.append([qi[0], qi[1]])
@@ -533,7 +533,7 @@ class pelican_robot:
 
         return qi, vi
 
-    def controller(self, qst, qpst):
+    def __controller(self, qst, qpst):
         """
         Types of position control:
             - Proportional control plus velocity feedback and Proportional
@@ -565,7 +565,7 @@ class pelican_robot:
 
         return qt
 
-    def mcg(self, q, v):
+    def __mcg(self, q, v):
         """
         Dynamic model of pelican robot with Controller and gravity compensation
         tau = M(q)\Ddot{q} + C(q, \dot{q})\dot{q} + G(q)
