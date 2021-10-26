@@ -292,7 +292,7 @@ class realtime:
 
                 return link_1, link_2, q1_error, q2_error,
 
-        ani = FuncAnimation(self.fig, animate, interval=5, blit=True, frames=len(qs),
+        ani = FuncAnimation(self.fig, animate, interval=1, blit=True, frames=len(qs),
                             repeat=False)
 
         self.fig.tight_layout()
@@ -332,7 +332,7 @@ class pelican_robot:
         - Controller that returns the error of each angle of the desired position.
         - Generate the controller tau with the set gains to use within the class.
 
-    MCG(q, v):
+    mcg(q, v):
         Canonical form of the robot's Lagrange equation of motion, the integrated
         controller with gravitational compensation. Return the accelerations of
         each link.
@@ -478,6 +478,10 @@ class pelican_robot:
 
         self.empty_values()
 
+        print("""
+              RK4 method will do {} iterations to the desired point {}
+              """.format(len(np.arange(ti, tf, H)), self.dp))
+
         qf, vf = self.rk4(ti, qi, vi, tf)
 
         if display == True:
@@ -502,25 +506,21 @@ class pelican_robot:
         vi : Values of final velocities [qp1, qp2] to desired position
         """
 
-        print("""
-              RK4 method will do {} iterations to the desired point {}
-              """.format(len(np.arange(ti, tf, H)), self.dp))
-
         for _ in np.arange(ti, tf, H):
             qt = self.controller(qi, vi)
             self.qerr.append(qt)
 
             k1 = vi
-            m1 = self.MCG(qi, vi)
+            m1 = self.mcg(qi, vi)
 
             k2 = vi + np.dot(m1, H / 2)
-            m2 = self.MCG(qi + np.dot(k1, H / 2), vi + np.dot(m1, H / 2))
+            m2 = self.mcg(qi + np.dot(k1, H / 2), vi + np.dot(m1, H / 2))
 
             k3 = vi + np.dot(m2, H / 2)
-            m3 = self.MCG(qi + np.dot(k2, H / 2), vi + np.dot(m2, H / 2))
+            m3 = self.mcg(qi + np.dot(k2, H / 2), vi + np.dot(m2, H / 2))
 
             k4 = vi + np.dot(m3, H)
-            m4 = self.MCG(qi + np.dot(k3, H), vi + np.dot(m3, H))
+            m4 = self.mcg(qi + np.dot(k3, H), vi + np.dot(m3, H))
 
             qi += (H / 6) * (k1 + 2 * (k2 + k3) + k4)
             self.qs.append([qi[0], qi[1]])
@@ -565,7 +565,7 @@ class pelican_robot:
 
         return qt
 
-    def MCG(self, q, v):
+    def mcg(self, q, v):
         """
         Dynamic model of pelican robot with Controller and gravity compensation
         tau = M(q)\Ddot{q} + C(q, \dot{q})\dot{q} + G(q)
@@ -698,8 +698,6 @@ class pelican_robot:
         ax.set_xticks(np.arange(-0.6, 0.6, 0.1))
         ax.set_yticks(np.arange(-0.6, 0.6, 0.1))
         ax.grid(which='both')
-        ax.set_xticklabels([])
-        ax.set_yticklabels([])
 
         for n in np.arange(0, len(self.qs), len(self.qs) // stp):
             # Draw each number of steps
