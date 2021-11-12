@@ -60,36 +60,34 @@ class binsrch:
         """
         Maximum list value by binary search
         """
-        return max(binsrch.max_value(self.lst[:self.n + 1]),
-                   binsrch.max_value(self.lst[-(self.n + 1):]))
+        return max(binsrch.__max_value(self.lst[:self.n + 1]),
+                   binsrch.__max_value(self.lst[-(self.n + 1):]))
 
     def min(self):
         """
         Minimum list value by binary search
         """
-        return min(binsrch.min_value(self.lst[:self.n + 1]),
-                   binsrch.min_value(self.lst[-(self.n + 1):]))
+        return min(binsrch.__min_value(self.lst[:self.n + 1]),
+                   binsrch.__min_value(self.lst[-(self.n + 1):]))
 
-    @staticmethod
-    def max_value(list):
+    def __max_value(list):
         """
         Recursive maximum value
         """
         if len(list) == 1:
             return list[0]
         else:
-            mx = binsrch.max_value(list[1:])
+            mx = binsrch.__max_value(list[1:])
             return mx if mx > list[0] else list[0]
 
-    @staticmethod
-    def min_value(list):
+    def __min_value(list):
         """
         Recursive minimum value
         """
         if len(list) == 1:
             return list[0]
         else:
-            mn = binsrch.min_value(list[1:])
+            mn = binsrch.__min_value(list[1:])
             return mn if mn < list[0] else list[0]
 
 def plot_link(p_i, p_f, *args, **kwargs):
@@ -266,7 +264,7 @@ class realtime:
         q2_error, = self.qt.plot([], [], 'b', lw=2, label="$ \\tilde{q_{2}} $")
         self.qt.legend(loc='upper right')
 
-        def animate(i):
+        def __animate(i):
             """
             Generate animation
             """
@@ -292,7 +290,7 @@ class realtime:
 
                 return link_1, link_2, q1_error, q2_error,
 
-        ani = FuncAnimation(self.fig, animate, interval=1, blit=True, frames=len(qs),
+        ani = FuncAnimation(self.fig, __animate, interval=1, blit=True, frames=len(qs),
                             repeat=False)
 
         self.fig.tight_layout()
