@@ -47,8 +47,10 @@ Kp = diag{kp} = diag{30, 30} [Nm/rad]
 Kv = diag{kv} = diag{7, 3} [Nm/rad]
 ```
 
-the `qi` angles were set to zero to start from home position in this case, if you want it to start from another position you can use the `inverse_k` function which is the robot inverse kinematics which returns the values of `q1` and `q2` for the position you want:
+the `qi` angles were set to zero to start from home position in this case, if you want it to start from another position you can use the `inverse_k` function in `utils.py` which is the robot inverse kinematics which returns the values of `q1` and `q2` for the position you want:
 ```python
+from utils import inverse_k
+
 qi = inverse_k(px, py)
 # px is the desired x-coordinate
 # py is the desired y-coordinate
