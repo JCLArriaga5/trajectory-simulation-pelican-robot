@@ -1,10 +1,13 @@
 import os
+import sys
 import numpy as np
 import matplotlib.pyplot as plt
 from tkinter import PhotoImage
 from PIL import Image
 from matplotlib.animation import FuncAnimation
 import matplotlib.animation as animation
+
+OS = sys.platform
 
 # Pelican Robot Parameters
 L1 = L2 = 0.26 # Meters
@@ -229,10 +232,11 @@ class realtime:
         # Change window title
         # self.fig.canvas.set_window_title('Pelican Robot: Simulation')
         # Change icon window
-        if os.path.exists('../pelcnrbt/images'):
-            plc_anim_w = plt.get_current_fig_manager()
-            img = PhotoImage(file='images/pelican-robot-icon.png')
-            plc_anim_w.window.tk.call('wm', 'iconphoto', plc_anim_w.window._w, img)
+        if OS == 'win32':
+            if os.path.exists('../pelcnrbt/images'):
+                plc_anim_w = plt.get_current_fig_manager()
+                img = PhotoImage(file='images/pelican-robot-icon.png')
+                plc_anim_w.window.tk.call('wm', 'iconphoto', plc_anim_w.window._w, img)
 
         # Limits and appearance of the pelican robot animation
         self.robot.set_xlim((-0.6, 0.6))

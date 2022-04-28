@@ -16,6 +16,7 @@ from tkinter import PhotoImage
 from PIL import Image
 from utils import *
 
+OS = sys.platform
 # Integration step
 H = 0.001
 
@@ -297,10 +298,11 @@ class pelican_robot:
                 solution for the desired position to be able to graph""")
 
         # Change icon window
-        if os.path.exists('../pelcnrbt/images'):
-            plc_anim_w = plt.get_current_fig_manager()
-            img = PhotoImage(file='images/pelican-robot-icon.png')
-            plc_anim_w.window.tk.call('wm', 'iconphoto', plc_anim_w.window._w, img)
+        if OS == 'win32':
+            if os.path.exists('../pelcnrbt/images'):
+                plc_anim_w = plt.get_current_fig_manager()
+                img = PhotoImage(file='images/pelican-robot-icon.png')
+                plc_anim_w.window.tk.call('wm', 'iconphoto', plc_anim_w.window._w, img)
 
         plt.title('Graph of velocity Behavior')
         plt.plot(self.ts, [(self.vs[i][0]) for i in range(len(self.vs))], "r--",
@@ -323,10 +325,11 @@ class pelican_robot:
                 solution for the desired position to be able to graph""")
 
         # Change icon window
-        if os.path.exists('../pelcnrbt/images'):
-            plc_anim_w = plt.get_current_fig_manager()
-            img = PhotoImage(file='images/pelican-robot-icon.png')
-            plc_anim_w.window.tk.call('wm', 'iconphoto', plc_anim_w.window._w, img)
+        if OS == 'win32':
+            if os.path.exists('../pelcnrbt/images'):
+                plc_anim_w = plt.get_current_fig_manager()
+                img = PhotoImage(file='images/pelican-robot-icon.png')
+                plc_anim_w.window.tk.call('wm', 'iconphoto', plc_anim_w.window._w, img)
 
         plt.title("Graph of $ \\tilde{q} $")
         # Plot
@@ -357,10 +360,11 @@ class pelican_robot:
 
         fig, ax = plt.subplots()
         # Change icon window
-        if os.path.exists('../pelcnrbt/images'):
-            plc_anim_w = plt.get_current_fig_manager()
-            img = PhotoImage(file='images/pelican-robot-icon.png')
-            plc_anim_w.window.tk.call('wm', 'iconphoto', plc_anim_w.window._w, img)
+        if OS == 'win32':
+            if os.path.exists('../pelcnrbt/images'):
+                plc_anim_w = plt.get_current_fig_manager()
+                img = PhotoImage(file='images/pelican-robot-icon.png')
+                plc_anim_w.window.tk.call('wm', 'iconphoto', plc_anim_w.window._w, img)
 
         # Work space of robot
         ax.set_xlim((-0.6, 0.6))
