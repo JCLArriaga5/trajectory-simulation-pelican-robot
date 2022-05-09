@@ -317,8 +317,8 @@ class realtime:
             """
 
             if i == len(qs) - 1:
-                print('Realtime animation donde!, Closed window.')
-                plt.close('all')
+                print('Realtime animation done!, Please close window.')
+                # plt.close(self.fig)
 
                 return link_1, link_2, q1_error, q2_error,
 
