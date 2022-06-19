@@ -298,11 +298,7 @@ class pelican_robot:
                 solution for the desired position to be able to graph""")
 
         # Change icon window
-        if OS == 'win32':
-            if os.path.exists('../pelcnrbt/images'):
-                plc_anim_w = plt.get_current_fig_manager()
-                img = PhotoImage(file='images/pelican-robot-icon.png')
-                plc_anim_w.window.tk.call('wm', 'iconphoto', plc_anim_w.window._w, img)
+        set_icon_window('Graph')
 
         plt.title('Graph of velocity Behavior')
         plt.plot(self.ts, [(self.vs[i][0]) for i in range(len(self.vs))], "r--",
@@ -325,11 +321,7 @@ class pelican_robot:
                 solution for the desired position to be able to graph""")
 
         # Change icon window
-        if OS == 'win32':
-            if os.path.exists('../pelcnrbt/images'):
-                plc_anim_w = plt.get_current_fig_manager()
-                img = PhotoImage(file='images/pelican-robot-icon.png')
-                plc_anim_w.window.tk.call('wm', 'iconphoto', plc_anim_w.window._w, img)
+        set_icon_window('Graph')
 
         plt.title("Graph of $ \\tilde{q} $")
         # Plot
@@ -360,12 +352,7 @@ class pelican_robot:
 
         fig, ax = plt.subplots()
         # Change icon window
-        if OS == 'win32':
-            if os.path.exists('../pelcnrbt/images'):
-                plc_anim_w = plt.get_current_fig_manager()
-                img = PhotoImage(file='images/pelican-robot-icon.png')
-                plc_anim_w.window.tk.call('wm', 'iconphoto', plc_anim_w.window._w, img)
-
+        set_icon_window('Graph')
         # Work space of robot
         ax.set_xlim((-0.6, 0.6))
         ax.set_ylim((-0.6, 0.6))

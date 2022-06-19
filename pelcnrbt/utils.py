@@ -205,6 +205,19 @@ def plot_link(p_i, p_f, *args, **kwargs):
                          if args[0][i] not in list(plt.Line2D.lineStyles) + ['.']])
         plt.scatter(p_i[0], p_i[1], facecolor=color)
 
+def set_icon_window(figure_title):
+    if OS == 'win32':
+        if os.path.exists('../pelcnrbt/images'):
+            plc_anim_w = plt.get_current_fig_manager()
+            img = PhotoImage(file='images/pelican-robot-icon.png')
+            plc_anim_w.window.tk.call('wm', 'iconphoto', plc_anim_w.window._w, img)
+
+    if OS == 'linux' or 'darwin':
+        if os.path.exists('../pelcnrbt/images'):
+            plc_anim_w = plt.get_current_fig_manager()
+            plc_anim_w.window.set_title(figure_title)
+            plc_anim_w.window.set_icon_from_file(filename='images/pelican-robot-icon.png')
+
 class realtime:
     """
     Generate animation of the trajectory and how it was reducing the qt error
@@ -229,15 +242,8 @@ class realtime:
 
         # Number of subplots to animate
         self.fig, (self.robot, self.qt) = plt.subplots(2, 1)
-        # Change window title
-        # self.fig.canvas.set_window_title('Pelican Robot: Simulation')
-        # Change icon window
-        if OS == 'win32':
-            if os.path.exists('../pelcnrbt/images'):
-                plc_anim_w = plt.get_current_fig_manager()
-                img = PhotoImage(file='images/pelican-robot-icon.png')
-                plc_anim_w.window.tk.call('wm', 'iconphoto', plc_anim_w.window._w, img)
-
+        # Change icon window & figire tittle
+        set_icon_window('Pelican Robot: Trajectory Simulation')
         # Limits and appearance of the pelican robot animation
         self.robot.set_xlim((-0.6, 0.6))
         self.robot.set_ylim((-0.6, 0.6))
