@@ -210,9 +210,10 @@ def set_icon_window(figure_title):
         if os.path.exists('../pelcnrbt/images'):
             plc_anim_w = plt.get_current_fig_manager()
             img = PhotoImage(file='images/pelican-robot-icon.png')
+            plc_anim_w.window.wm_title(figure_title)
             plc_anim_w.window.tk.call('wm', 'iconphoto', plc_anim_w.window._w, img)
 
-    if OS == 'linux' or 'darwin':
+    elif OS == 'linux' or 'darwin':
         if os.path.exists('../pelcnrbt/images'):
             plc_anim_w = plt.get_current_fig_manager()
             plc_anim_w.window.set_title(figure_title)
