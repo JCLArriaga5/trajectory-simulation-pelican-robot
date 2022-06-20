@@ -206,6 +206,15 @@ def plot_link(p_i, p_f, *args, **kwargs):
         plt.scatter(p_i[0], p_i[1], facecolor=color)
 
 def set_icon_window(figure_title):
+    """
+    Change default matplotlib window icon by the pelican robot illustration icon
+    and the window title
+
+    Parameters
+    ----------
+    figure_title : str
+        Window tittle
+    """
     if OS == 'win32':
         if os.path.exists('../pelcnrbt/images'):
             plc_anim_w = plt.get_current_fig_manager()
