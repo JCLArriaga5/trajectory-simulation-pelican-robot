@@ -178,6 +178,7 @@ class pelican_robot:
         qf, vf = self.__rk4(ti, qi, vi, tf)
 
         if display == True:
+            message_dialog('Information', 'When the simulation finishes, close the window to continue with the script.')
             realtime().show(self.ts, self.qs, self.qerr, self.dp, self.ctrl_type)
 
         return qf, vf
@@ -430,8 +431,10 @@ if __name__ == '__main__':
 
     print('Close window of error graph...')
     sim.plot_q_error()
+    message_dialog('Information', 'When you finish viewing the error graph, close the window.')
     plt.show()
 
     print('Close window of trajectory plot...')
     sim.plot_trajectory(50)
+    message_dialog('Information', 'When you finish viewing the trajectory plot, close the window.')
     plt.show()

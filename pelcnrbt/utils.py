@@ -6,6 +6,12 @@ from tkinter import PhotoImage
 from PIL import Image
 from matplotlib.animation import FuncAnimation
 import matplotlib.animation as animation
+try:
+    import gi
+    gi.require_version("Gtk", "3.0")
+    from gi.repository import Gtk
+except:
+    print("Check if you have Gtk installed")
 
 OS = sys.platform
 
@@ -227,6 +233,20 @@ def set_icon_window(figure_title):
             plc_anim_w = plt.get_current_fig_manager()
             plc_anim_w.window.set_title(figure_title)
             plc_anim_w.window.set_icon_from_file(filename='images/pelican-robot-icon.png')
+
+def message_dialog(title, message):
+    if OS == 'linux':
+        dialog = Gtk.MessageDialog(
+           transient_for=None,
+           flags=0,
+           message_type=Gtk.MessageType.INFO,
+           buttons=Gtk.ButtonsType.OK,
+           text=title,
+        )
+        dialog.format_secondary_text(message)
+        dialog.run()
+
+        dialog.destroy()
 
 class realtime:
     """
