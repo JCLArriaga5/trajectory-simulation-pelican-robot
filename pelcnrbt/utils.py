@@ -247,6 +247,10 @@ def message_dialog(title, message):
         dialog.run()
 
         dialog.destroy()
+    elif OS == 'win32':
+        import ctypes
+        MessageBox = ctypes.windll.user32.MessageBoxW
+        MessageBox(None, message, title, 0)
 
 class realtime:
     """
