@@ -90,8 +90,9 @@ qsf, qpsf = sim.run(ti, qi, vi, tf, display=True)
 
 <p align="center"><img src="images/pelican_simulation.gif"></p>
 
-<!-- ### Ubuntu screen recording
-<p align="center"><img src="images/pelican_robot_sim.webm"></p> -->
+### Ubuntu screen recording
+
+<p align="center"><img src="https://drive.google.com/uc?export=view&id=1GbFa7zzTH__GRjHmFB48uGjtb82IOKCE"></p>
 
 # References
  Kelly, R., Davila, V. S., & Perez, J. A. L. (2006). Control of robot manipulators in joint space. Springer Science & Business Media.
