@@ -9,12 +9,6 @@ from tkinter import PhotoImage
 from PIL import Image
 from matplotlib.animation import FuncAnimation
 import matplotlib.animation as animation
-try:
-    import gi
-    gi.require_version("Gtk", "3.0")
-    from gi.repository import Gtk
-except:
-    print("Check if you have Gtk installed")
 
 OS = sys.platform
 
@@ -238,9 +232,31 @@ def set_icon_window(figure_title):
             plc_anim_w.window.set_icon_from_file(filename='images/pelican-robot-icon.png')
 
 def message_dialog(title, message):
+    """
+    Message Dialog to tell the user something about the program
+
+    Parameters
+    ----------
+    title : str
+        Title for the window e.g Information
+    message : str
+        Message to display
+    """
+
     if OS == 'linux':
+        try:
+            import gi
+            gi.require_version("Gtk", "3.0")
+            from gi.repository import Gtk
+        except:
+            print("Check if you have Gtk installed")
+
+        __w = Gtk.Window()
+        if os.path.exists('../pelcnrbt/images'):
+            __w.set_icon_from_file(filename='images/pelican-robot-icon.png')
+
         dialog = Gtk.MessageDialog(
-           transient_for=None,
+           transient_for=__w,
            flags=0,
            message_type=Gtk.MessageType.INFO,
            buttons=Gtk.ButtonsType.OK,
@@ -248,10 +264,11 @@ def message_dialog(title, message):
         )
         dialog.format_secondary_text(message)
         dialog.run()
-
         dialog.destroy()
+
     elif OS == 'win32':
         import ctypes
+        
         MB_OK = 0x00000000
         MB_ICONINFORMATION = 0x00000040
         MB_DEFAULT_DESKTOP_ONLY = 0x00020000
