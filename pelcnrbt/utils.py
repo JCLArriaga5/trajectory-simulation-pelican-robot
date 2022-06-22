@@ -1,3 +1,6 @@
+#!/usr/bin/python3
+# -*- coding: utf-8 -*-
+
 import os
 import sys
 import numpy as np
@@ -249,8 +252,11 @@ def message_dialog(title, message):
         dialog.destroy()
     elif OS == 'win32':
         import ctypes
+        MB_OK = 0x00000000
+        MB_ICONINFORMATION = 0x00000040
+        MB_DEFAULT_DESKTOP_ONLY = 0x00020000
         MessageBox = ctypes.windll.user32.MessageBoxW
-        MessageBox(None, message, title, 0)
+        MessageBox(None, message, title, MB_OK | MB_ICONINFORMATION | MB_DEFAULT_DESKTOP_ONLY)
 
 class realtime:
     """
