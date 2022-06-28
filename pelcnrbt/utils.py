@@ -22,6 +22,9 @@ M1 = 6.5225 # Kg
 M2 = 2.0458 # Kg
 GR = 9.80665 # m / s²
 
+ICONS_PATH = '../pelcnrbt/data/icons'
+ICONS_PATH_EXISTS = os.path.exists(ICONS_PATH)
+
 def direct_k(q1, q2):
     """
     Direct Kinematic of pelican robot:
@@ -219,17 +222,17 @@ def set_icon_window(figure_title):
         Window tittle
     """
     if OS == 'win32':
-        if os.path.exists('../pelcnrbt/images'):
+        if ICONS_PATH_EXISTS:
             plc_anim_w = plt.get_current_fig_manager()
-            img = PhotoImage(file='images/pelican-robot-icon.png')
+            img = PhotoImage(file=ICONS_PATH + '/pelican-robot-icon.png')
             plc_anim_w.window.wm_title(figure_title)
             plc_anim_w.window.tk.call('wm', 'iconphoto', plc_anim_w.window._w, img)
 
     elif OS == 'linux' or 'darwin':
-        if os.path.exists('../pelcnrbt/images'):
+        if ICONS_PATH_EXISTS:
             plc_anim_w = plt.get_current_fig_manager()
             plc_anim_w.window.set_title(figure_title)
-            plc_anim_w.window.set_icon_from_file(filename='images/pelican-robot-icon.png')
+            plc_anim_w.window.set_icon_from_file(filename=ICONS_PATH + '/pelican-robot-icon.png')
 
 def message_dialog(title, message):
     """
@@ -252,8 +255,8 @@ def message_dialog(title, message):
             print("Check if you have Gtk installed")
 
         __w = Gtk.Window()
-        if os.path.exists('../pelcnrbt/images'):
-            __w.set_icon_from_file(filename='images/pelican-robot-icon.png')
+        if ICONS_PATH_EXISTS:
+            __w.set_icon_from_file(filename=ICONS_PATH + '/pelican-robot-icon.png')
 
         dialog = Gtk.MessageDialog(
            transient_for=__w,
@@ -268,7 +271,7 @@ def message_dialog(title, message):
 
     elif OS == 'win32':
         import ctypes
-        
+
         MB_OK = 0x00000000
         MB_ICONINFORMATION = 0x00000040
         MB_DEFAULT_DESKTOP_ONLY = 0x00020000
