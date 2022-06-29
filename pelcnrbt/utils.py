@@ -70,7 +70,7 @@ def inverse_k(px, py):
 
     return [q1, q2]
 
-class dynamic_model:
+class Dynamic_model:
     """
     Dynamic model of pelican robot
     ------------------------------
@@ -211,28 +211,44 @@ def plot_link(p_i, p_f, *args, **kwargs):
                          if args[0][i] not in list(plt.Line2D.lineStyles) + ['.']])
         plt.scatter(p_i[0], p_i[1], facecolor=color)
 
-def set_icon_window(figure_title):
+def set_title(title):
     """
-    Change default matplotlib window icon by the pelican robot illustration icon
-    and the window title
+    Set window title
 
     Parameters
     ----------
-    figure_title : str
-        Window tittle
+    title : str
+        Title name
     """
+
+    if OS == 'win32':
+        plc_anim_w = plt.get_current_fig_manager()
+        plc_anim_w.window.wm_title(title)
+
+    elif OS == 'linux':
+        plc_anim_w = plt.get_current_fig_manager()
+        plc_anim_w.window.set_title(title)
+
+def set_icon_window(filename):
+    """
+    Change default matplotlib window icon
+
+    Parameters
+    ----------
+    filename : str
+        Filename from ICONS_PATH
+    """
+
     if OS == 'win32':
         if ICONS_PATH_EXISTS:
             plc_anim_w = plt.get_current_fig_manager()
-            img = PhotoImage(file=ICONS_PATH + '/pelican-robot-icon.png')
-            plc_anim_w.window.wm_title(figure_title)
+            img = PhotoImage(file=ICONS_PATH + '/' + filename)
             plc_anim_w.window.tk.call('wm', 'iconphoto', plc_anim_w.window._w, img)
 
-    elif OS == 'linux' or 'darwin':
+    elif OS == 'linux':
         if ICONS_PATH_EXISTS:
             plc_anim_w = plt.get_current_fig_manager()
-            plc_anim_w.window.set_title(figure_title)
-            plc_anim_w.window.set_icon_from_file(filename=ICONS_PATH + '/pelican-robot-icon.png')
+            plc_anim_w.window.set_icon_from_file(filename=ICONS_PATH + '/' + filename)
 
 def message_dialog(title, message):
     """
@@ -246,7 +262,16 @@ def message_dialog(title, message):
         Message to display
     """
 
-    if OS == 'linux':
+    if OS == 'win32':
+        import ctypes
+
+        MB_OK = 0x00000000
+        MB_ICONINFORMATION = 0x00000040
+        MB_DEFAULT_DESKTOP_ONLY = 0x00020000
+        MessageBox = ctypes.windll.user32.MessageBoxW
+        MessageBox(None, message, title, MB_OK | MB_ICONINFORMATION | MB_DEFAULT_DESKTOP_ONLY)
+
+    elif OS == 'linux':
         try:
             import gi
             gi.require_version("Gtk", "3.0")
@@ -268,15 +293,6 @@ def message_dialog(title, message):
         dialog.format_secondary_text(message)
         dialog.run()
         dialog.destroy()
-
-    elif OS == 'win32':
-        import ctypes
-
-        MB_OK = 0x00000000
-        MB_ICONINFORMATION = 0x00000040
-        MB_DEFAULT_DESKTOP_ONLY = 0x00020000
-        MessageBox = ctypes.windll.user32.MessageBoxW
-        MessageBox(None, message, title, MB_OK | MB_ICONINFORMATION | MB_DEFAULT_DESKTOP_ONLY)
 
 class realtime:
     """
@@ -302,8 +318,9 @@ class realtime:
 
         # Number of subplots to animate
         self.fig, (self.robot, self.qt) = plt.subplots(2, 1)
-        # Change icon window & figire tittle
-        set_icon_window('Pelican Robot: Trajectory Simulation')
+        # Change icon window & figure tittle
+        set_icon_window('pelican-robot-icon.png')
+        set_title('Pelican Robot: Trajectory Simulation')
         # Limits and appearance of the pelican robot animation
         self.robot.set_xlim((-0.6, 0.6))
         self.robot.set_ylim((-0.6, 0.6))

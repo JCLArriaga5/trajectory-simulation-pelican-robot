@@ -253,9 +253,9 @@ class pelican_robot:
         if self.ctrl_type == 'PD':
             self.tau = np.dot(self.kp, qt) - np.dot(self.kv, qpst)
         elif self.ctrl_type == 'PD-GC':
-            self.tau = np.dot(self.kp, qt) - np.dot(self.kv, qpst) + dynamic_model.G(qst[0], qst[1])
+            self.tau = np.dot(self.kp, qt) - np.dot(self.kv, qpst) + Dynamic_model.G(qst[0], qst[1])
         elif self.ctrl_type == 'PD-dGC':
-            self.tau = np.dot(self.kp, qt) - np.dot(self.kv, qpst) + dynamic_model.G(qds[0], qds[1])
+            self.tau = np.dot(self.kp, qt) - np.dot(self.kv, qpst) + Dynamic_model.G(qds[0], qds[1])
 
         return qt
 
@@ -283,9 +283,9 @@ class pelican_robot:
         else:
             __tau = self.tau
 
-        minv = np.linalg.inv(dynamic_model.M(q[1]))
-        cqp = np.dot(dynamic_model.C(q[1], v[0], v[1]), v)
-        qpp = np.matmul(minv, (__tau - cqp - dynamic_model.G(q[0], q[1])))
+        minv = np.linalg.inv(Dynamic_model.M(q[1]))
+        cqp = np.dot(Dynamic_model.C(q[1], v[0], v[1]), v)
+        qpp = np.matmul(minv, (__tau - cqp - Dynamic_model.G(q[0], q[1])))
 
         return qpp
 
@@ -299,7 +299,9 @@ class pelican_robot:
                 solution for the desired position to be able to graph""")
 
         # Change icon window
-        set_icon_window('Graph')
+        set_icon_window('pelican-robot-icon.png')
+        # Change Figure title
+        set_title('Graph')
 
         plt.title('Graph of velocity Behavior')
         plt.plot(self.ts, [(self.vs[i][0]) for i in range(len(self.vs))], "r--",
@@ -322,7 +324,9 @@ class pelican_robot:
                 solution for the desired position to be able to graph""")
 
         # Change icon window
-        set_icon_window('Graph')
+        set_icon_window('pelican-robot-icon.png')
+        # Change Figure title
+        set_title('Graph')
 
         plt.title("Graph of $ \\tilde{q} $")
         # Plot
@@ -353,7 +357,9 @@ class pelican_robot:
 
         fig, ax = plt.subplots()
         # Change icon window
-        set_icon_window('Graph')
+        set_icon_window('pelican-robot-icon.png')
+        # Change Figure title
+        set_title('Graph')
         # Work space of robot
         ax.set_xlim((-0.6, 0.6))
         ax.set_ylim((-0.6, 0.6))
