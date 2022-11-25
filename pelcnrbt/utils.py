@@ -11,6 +11,11 @@ from matplotlib.animation import FuncAnimation
 import matplotlib.animation as animation
 
 OS = sys.platform
+try:
+  import google.colab
+  IN_COLAB = True
+except:
+  IN_COLAB = False
 
 # Pelican Robot Parameters
 L1 = L2 = 0.26 # Meters
@@ -225,7 +230,7 @@ def set_title(title):
         plc_anim_w = plt.get_current_fig_manager()
         plc_anim_w.window.wm_title(title)
 
-    elif OS == 'linux':
+    elif OS == 'linux' and not IN_COLAB:
         plc_anim_w = plt.get_current_fig_manager()
         plc_anim_w.window.set_title(title)
 
@@ -245,7 +250,7 @@ def set_icon_window(filename):
             img = PhotoImage(file=ICONS_PATH + '/' + filename)
             plc_anim_w.window.tk.call('wm', 'iconphoto', plc_anim_w.window._w, img)
 
-    elif OS == 'linux':
+    elif OS == 'linux' and not IN_COLAB:
         if ICONS_PATH_EXISTS:
             plc_anim_w = plt.get_current_fig_manager()
             plc_anim_w.window.set_icon_from_file(filename=ICONS_PATH + '/' + filename)
@@ -271,7 +276,7 @@ def message_dialog(title, message):
         MessageBox = ctypes.windll.user32.MessageBoxW
         MessageBox(None, message, title, MB_OK | MB_ICONINFORMATION | MB_DEFAULT_DESKTOP_ONLY)
 
-    elif OS == 'linux':
+    elif OS == 'linux' and not IN_COLAB:
         try:
             import gi
             gi.require_version("Gtk", "3.0")
