@@ -417,10 +417,10 @@ if __name__ == '__main__':
     # Desired position
     dp = [0.26, 0.13]
     # Gains
-    kp = [[30.0, 0.0],
-          [0.0, 30.0]]
-    kv = [[7.0, 0.0],
-          [0.0, 3.0]]
+    kp = np.asarray([[30.0, 0.0],
+          [0.0, 30.0]])
+    kv = np.asarray([[7.0, 0.0],
+          [0.0, 3.0]])
     # Initial values of angles and velocities
     qi = [0.0, 0.0]
     vi = [0.0, 0.0]
