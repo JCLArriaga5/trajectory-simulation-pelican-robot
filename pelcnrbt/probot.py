@@ -278,8 +278,7 @@ class pelican_robot:
         """
 
         if len(self.tau) == 0:
-            str_error = 'The tau value of the "controller function" is needed.'
-            raise ValueError(str_error)
+            raise ValueError('The tau value of the "controller function" is needed.')
         else:
             __tau = self.tau
 

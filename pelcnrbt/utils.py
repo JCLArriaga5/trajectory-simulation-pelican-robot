@@ -73,7 +73,7 @@ def inverse_k(px, py):
     q2 = np.arctan2(np.sqrt(1 - (k ** 2)), k)
     q1 = np.arctan2(px, - py) - np.arctan2((L2 * np.sin(q2)), (L1 + L2 * np.cos(q2)))
 
-    return [q1, q2]
+    return np.asarray([q1, q2])
 
 class Dynamic_model:
     """
@@ -99,7 +99,7 @@ class Dynamic_model:
         m_21 = M2 * (LC2 ** 2 + L1 * LC2 * np.cos(q2)) + I2
         m_22 = M2 * LC2 ** 2 + I2
 
-        return [[m_11, m_12], [m_21, m_22]]
+        return np.asarray([[m_11, m_12], [m_21, m_22]])
 
     def C(q2, v1, v2):
         """
@@ -116,7 +116,7 @@ class Dynamic_model:
         c_12 = - ((M2 * L1 * LC2 * np.sin(q2)) * (v1 + v2))
         c_21 =   ((M2 * L1 * LC2 * np.sin(q2)) * v2)
 
-        return [[c_11, c_12], [c_21, 0.0]]
+        return np.asarray([[c_11, c_12], [c_21, 0.0]])
 
     def G(q1, q2):
         """
@@ -130,7 +130,8 @@ class Dynamic_model:
 
         g_11 = (M1 * LC1 + M2 * L1) * GR * np.sin(q1) + M2 * LC2 * GR * np.sin(q1 + q2)
         g_21 = M2 * LC2 * GR * np.sin(q1 + q2)
-        return [g_11, g_21]
+
+        return np.asarray([g_11, g_21])
 
 class binsrch:
     """
@@ -425,8 +426,11 @@ class realtime:
 
                 return link_1, link_2, q1_error, q2_error,
 
-        ani = FuncAnimation(self.fig, __animate, interval=1, blit=True, frames=len(qs),
+        try:
+            ani = FuncAnimation(self.fig, __animate, interval=1, blit=True, frames=len(qs),
                             repeat=False)
 
-        self.fig.tight_layout()
-        plt.show()
+            self.fig.tight_layout()
+            plt.show()
+        except:
+            raise RuntimeError("Could not show animation")
